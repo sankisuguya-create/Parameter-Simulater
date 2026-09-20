@@ -16,8 +16,9 @@
       <h1>ケイドロ・パラメータ実験室</h1>
     </div>
     <div class="condition-buttons">
-      <button id="open-settings-a" class="button condition-a" type="button" aria-expanded="false" aria-controls="settings">Aの条件</button>
-      <button id="open-settings-b" class="button condition-b" type="button" aria-expanded="false" aria-controls="settings">Bの条件</button>
+      <button id="open-global-settings" class="button global-settings-button" type="button" aria-expanded="false" aria-controls="global-settings">全体設定</button>
+      <button id="open-settings-a" class="button condition-a" type="button" aria-expanded="false" aria-controls="dual-settings">A・Bの条件</button>
+      <button id="open-settings-b" class="button condition-b" type="button" aria-expanded="false" aria-controls="dual-settings">A・Bの条件</button>
     </div>
   </header>
 
@@ -97,6 +98,18 @@
       <span aria-hidden="true"> ／ </span><a href="https://www.kyoiku-shuppan.co.jp/docs/e-na/es5/pageindices/index13.html" target="_blank" rel="noreferrer">鬼の人数を考える教育実践</a>
     </details>
   </main>
+
+  <section id="dual-settings" class="dual-settings" aria-label="AとBの条件を同時設定" hidden>
+    <header class="dual-settings-head">
+      <div><p class="eyebrow">左右を見ながら比べる</p><h2>A・Bの条件設定</h2></div>
+      <div class="dual-head-actions"><button id="copy-a-to-b" class="button" type="button">AをBへコピー</button><button id="copy-b-to-a" class="button" type="button">BをAへコピー</button><button id="close-dual-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+    </header>
+    <div class="dual-settings-body">
+      <section class="dual-side dual-side-a" aria-labelledby="dual-title-a"><header><span class="condition-letter">A</span><div><h3 id="dual-title-a">Aの条件</h3><p>左側の実験条件</p></div></header><div id="dual-form-a" class="dual-form-host"></div></section>
+      <section class="dual-side dual-side-b" aria-labelledby="dual-title-b"><header><span class="condition-letter">B</span><div><h3 id="dual-title-b">Bの条件</h3><p>右側の実験条件</p></div></header><div id="dual-form-b" class="dual-form-host"></div></section>
+    </div>
+    <footer class="dual-settings-footer"><p id="dual-settings-error" class="error" role="alert"></p><button id="apply-dual-settings" class="button primary" type="button">A・Bをこの条件で試す</button></footer>
+  </section>
 
   <aside id="settings" class="settings" aria-label="条件設定" hidden>
     <div class="settings-head"><div><p id="settings-side-label" class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
@@ -200,6 +213,39 @@
       </div></details>
       <p id="settings-error" class="error" role="alert"></p>
       <div class="settings-actions"><button id="copy-other" class="button" type="button">Aと同じにする</button><button class="button primary" type="submit">この条件で試す</button></div>
+    </form>
+  </aside>
+  <aside id="global-settings" class="settings global-settings" aria-label="全体設定" hidden>
+    <div class="settings-head"><div><p class="eyebrow">A・Bにまとめて反映</p><h2>全体設定</h2></div><button id="close-global-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+    <p class="settings-help">参加人数と、A・Bで共通にする場所・時間をまとめて変更します。人数を変えたときは、現在の鬼と逃げの比率を保って配分します。</p>
+    <form id="global-settings-form">
+      <section class="global-total-card" aria-labelledby="global-total-title">
+        <div><p class="eyebrow">A・B共通</p><h3 id="global-total-title">全体参加者</h3></div>
+        <div class="global-total-control"><button type="button" id="global-total-minus" aria-label="全体参加者を1人減らす">−</button><output id="global-total-output">24</output><span>人</span><button type="button" id="global-total-plus" aria-label="全体参加者を1人増やす">＋</button></div>
+        <input id="global-total" name="totalCount" type="number" min="2" max="55" value="24" aria-label="全体参加者の数">
+      </section>
+      <details open><summary>活動範囲と時間</summary><div class="setting-grid">
+        <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
+        <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
+        <label>制限時間（秒）<input name="timeLimit" type="number" min="30" max="600" step="30"></label>
+        <label>本気で走れる時間（秒）<input name="sprintDuration" type="number" min="1" max="30"></label>
+        <label>回復の歩き時間（秒）<input name="recoveryDuration" type="number" min="1" max="60"></label>
+      </div></details>
+      <details><summary>牢屋</summary><div class="setting-grid">
+        <label>牢屋の位置<select name="jailPosition"><option value="right">右上（運動場）</option><option value="center">中央</option><option value="edge">上辺</option><option value="corner">左上隅</option></select></label>
+        <label>牢屋の幅（m）<input name="jailWidth" type="number" min="2" max="15"></label>
+        <label>牢屋の奥行き（m）<input name="jailHeight" type="number" min="2" max="12"></label>
+      </div></details>
+      <details><summary>立ち入り禁止領域</summary><div class="setting-grid">
+        <label class="check"><input name="restrictedEnabled" type="checkbox">立ち入り禁止領域を使う</label>
+        <label>禁止する側<select name="restrictedMode"><option value="inside">矩形の内側</option><option value="outside">矩形の外側</option></select></label>
+        <label>矩形の左端（m）<input name="restrictedX" type="number" min="0" max="79" step="0.5"></label>
+        <label>矩形の上端（m）<input name="restrictedY" type="number" min="0" max="59" step="0.5"></label>
+        <label>矩形の幅（m）<input name="restrictedWidth" type="number" min="1" max="80" step="0.5"></label>
+        <label>矩形の高さ（m）<input name="restrictedHeight" type="number" min="1" max="60" step="0.5"></label>
+      </div></details>
+      <p id="global-settings-error" class="error" role="alert"></p>
+      <div class="settings-actions"><button class="button primary" type="submit">A・Bにまとめて反映</button></div>
     </form>
   </aside>
   <div id="scrim" class="scrim" hidden></div>
