@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f4ec">
+  <title>ケイドロ・パラメータ実験室</title>
+  <meta name="description" content="ケイドロの条件を変え、動きと結果のつながりを比べるシミュレーター">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d4ed8'/%3E%3Ccircle cx='23' cy='32' r='12' fill='%23fff'/%3E%3Ccircle cx='42' cy='32' r='12' fill='%23f97316' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E">
+  <style>
+/* styles.css — GAS用に自動埋め込み */
+:root{color-scheme:light;--ink:#172238;--muted:#637083;--paper:#f7f4ec;--card:#fffefa;--line:#d9d5ca;--blue:#2563eb;--blue-dark:#1e40af;--orange:#f97316;--green:#15803d;--red:#b91c1c;--jail:#6b5f50;--shadow:0 12px 32px rgba(31,41,55,.09);font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN",system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink)}button,input,select,textarea{font:inherit}button,input,select{min-height:44px}button{cursor:pointer}.topbar,main{max-width:1400px;margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 10px}.eyebrow{margin:0 0 3px;color:var(--blue-dark);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.topbar h1{font-size:clamp(1.4rem,3vw,2.1rem);margin:0;letter-spacing:-.03em}.button{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:750;padding:9px 16px;box-shadow:0 2px 0 rgba(23,34,56,.06)}.button:hover{border-color:#a8a294}.button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,canvas:focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:2px}.button.primary{background:var(--ink);border-color:var(--ink);color:white}.button.secondary{background:#e8efff;border-color:#b9cdfd;color:var(--blue-dark)}.button.ghost{background:transparent;box-shadow:none}.button:disabled{cursor:not-allowed;opacity:.45}main{padding:8px 24px 48px}.question-strip{display:flex;gap:20px;align-items:end;justify-content:space-between;background:#fff3dc;border:1px solid #edce94;border-radius:16px;padding:14px 18px;margin:4px 0 12px}.question-strip h2{font-size:1rem;margin:0 0 4px}.question-strip p{margin:0;color:#6e531e}.prediction{display:flex;gap:8px;align-items:center;font-weight:700;white-space:nowrap}.prediction input{width:min(35vw,420px);border:1px solid #c9a65e;border-radius:10px;padding:8px 10px;background:white}.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}.speed-control{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem}.speed-control select{min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:0 8px}.clock{margin-left:auto;font-variant-numeric:tabular-nums;font-size:1.35rem;font-weight:850}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sim-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);min-width:0}.sim-card.changed{border-top:4px solid var(--orange);padding-top:9px}.sim-card>header{display:flex;gap:10px;align-items:center;margin-bottom:8px}.condition-letter{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--ink);color:white;font-size:1.2rem;font-weight:900}.changed .condition-letter{background:var(--orange)}.sim-card h2{font-size:1rem;margin:0}.sim-card header p{margin:2px 0 0;color:var(--muted);font-size:.82rem}.canvas-wrap{position:relative;aspect-ratio:1.58;border:1px solid #b8b4aa;border-radius:12px;overflow:hidden;background:#eef5e8}.canvas-wrap canvas{display:block;width:100%;height:100%;touch-action:manipulation}.status{min-height:26px;padding:6px 3px 2px;font-weight:700;font-size:.9rem}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:3px 0 8px}.metric{background:#f1efe8;border-radius:9px;padding:7px 8px;min-width:0}.metric span{display:block;color:var(--muted);font-size:.7rem}.metric strong{font-size:1rem;font-variant-numeric:tabular-nums}.chart{width:100%;height:72px;display:block;border-top:1px solid var(--line)}.selected-agent{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px 0;background:#eaf1ff;border:1px solid #bad0ff;border-radius:14px;padding:12px 16px}.selected-agent div{display:flex;gap:10px}.selected-agent span{color:var(--muted)}.selected-agent label{display:flex;align-items:center;gap:8px;font-weight:700}.selected-agent input{width:220px}.reflection{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}.reflection h2{font-size:1.05rem}.reflection-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.reflection label{font-weight:750}.reflection textarea{display:block;width:100%;margin-top:6px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card)}.note{color:var(--muted);font-size:.86rem}.teacher-notes{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:11px 14px;margin-top:14px}.teacher-notes summary{font-weight:800;cursor:pointer}.teacher-notes p{line-height:1.7}.settings{position:fixed;z-index:20;top:0;right:0;height:100dvh;width:min(520px,94vw);background:var(--card);box-shadow:-20px 0 60px rgba(23,34,56,.2);padding:20px;overflow:auto}.settings-head{display:flex;justify-content:space-between;align-items:start}.settings-head h2{margin:0}.icon-button{border:0;background:#ece9e1;border-radius:50%;width:44px;font-size:1.4rem}.settings-help{color:var(--muted);line-height:1.5}.settings details{border-top:1px solid var(--line);padding:12px 0}.settings summary{font-weight:850;cursor:pointer;padding:5px 0}.setting-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.setting-grid label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:700}.setting-grid input,.setting-grid select{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:white}.setting-grid label.check{flex-direction:row;align-items:center}.setting-grid .check input{width:22px;min-height:22px}.setting-grid output{color:var(--blue-dark)}.dependency{background:#edf2ff;color:var(--blue-dark);padding:9px;border-radius:9px;font-weight:800}.error{min-height:22px;color:var(--red);font-weight:750}.settings-actions{position:sticky;bottom:-20px;display:flex;justify-content:flex-end;gap:8px;background:var(--card);padding:14px 0 20px}.scrim{position:fixed;z-index:10;inset:0;background:rgba(23,34,56,.32)}[hidden]{display:none!important}
+.preset-picker{margin:12px 0 4px;padding:12px;border-radius:12px;background:#f3f6fc;border:1px solid #d8e1f2}.preset-picker label{display:flex;flex-direction:column;gap:6px;font-weight:800}.preset-picker select{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:white}.preset-picker p{margin:8px 0 0}.condition-buttons{display:flex;gap:8px}.button.condition-a{background:#e8efff;border-color:#b9cdfd;color:#1e40af}.button.condition-b{background:#fff0e6;border-color:#fdba74;color:#9a3412}.settings.left{left:0;right:auto;box-shadow:20px 0 60px rgba(23,34,56,.2)}
+.legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-2px 2px 10px;color:var(--muted);font-size:.78rem}.legend span{display:flex;align-items:center;gap:5px}.legend-help{margin-left:auto}.symbol{display:inline-block;width:16px;height:16px;background:#2563eb;box-shadow:inset 0 0 0 1.5px white}.symbol.chaser{background:#ef1717;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 94%,50% 71%,21% 94%,32% 57%,2% 35%,39% 35%)}.symbol.guard{width:10px;height:18px;border-radius:2px;background:#f97316}.symbol.mochi{width:18px;height:13px;border-radius:55% 42% 58% 45%/48% 58% 42% 52%;background:#d97706;transform:rotate(-8deg)}.symbol.runner{border-radius:50%;background:#2563eb}.symbol.caught{border-radius:50%;background:#6b7280}.rule-line{color:var(--muted);font-size:.85rem;line-height:1.5}
+.comparison.stacked{grid-template-columns:1fr}.comparison.stacked .sim-card{width:100%}@media(max-width:850px){.comparison{grid-template-columns:1fr}.question-strip{align-items:stretch;flex-direction:column}.prediction{white-space:normal;align-items:flex-start;flex-direction:column}.prediction input{width:100%}.clock{margin-left:0}.legend-help{margin-left:0}.selected-agent{align-items:stretch;flex-direction:column}.reflection-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.topbar,main{padding-left:12px;padding-right:12px}.topbar{align-items:flex-start}.topbar .button{padding:8px 10px}.toolbar .button{flex:1 1 auto}.metrics{grid-template-columns:1fr 1fr}.setting-grid{grid-template-columns:1fr}.selected-agent input{width:150px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">予想 → ためす → 見直す</p>
+      <h1>ケイドロ・パラメータ実験室</h1>
+    </div>
+    <div class="condition-buttons">
+      <button id="open-settings-a" class="button condition-a" type="button" aria-expanded="false" aria-controls="settings">Aの条件</button>
+      <button id="open-settings-b" class="button condition-b" type="button" aria-expanded="false" aria-controls="settings">Bの条件</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="question-strip" aria-labelledby="question-title">
+      <div>
+        <h2 id="question-title">何を変えたら、みんなが動き続けられる？</h2>
+        <p id="difference" aria-live="polite">Bは「守り」を1人増やしています。</p>
+      </div>
+      <label class="prediction">予想 <input id="prediction" type="text" maxlength="80" placeholder="例：牢屋の近くで捕まりやすくなる"></label>
+    </section>
+
+    <section class="toolbar" aria-label="実験の操作">
+      <button id="run" class="button primary" type="button">くらべる</button>
+      <button id="pause" class="button" type="button" disabled>一時停止</button>
+      <button id="reset" class="button" type="button">最初から</button>
+      <button id="new-seed" class="button ghost" type="button">別の並び</button>
+      <label class="speed-control">再生速度
+        <select id="playback-speed">
+          <option value="1">×1</option>
+          <option value="2">×2</option>
+          <option value="4">×4</option>
+        </select>
+      </label>
+      <label class="speed-control">並べ方
+        <select id="comparison-layout">
+          <option value="stacked" selected>上下</option>
+          <option value="side">左右</option>
+        </select>
+      </label>
+      <output id="shared-clock" class="clock" aria-live="off">0:00</output>
+    </section>
+    <div class="legend" aria-label="記号の見分け方"><span><i class="symbol chaser"></i>追う鬼</span><span><i class="symbol guard"></i>守り</span><span><i class="symbol mochi"></i>餅</span><span><i class="symbol runner"></i>逃げ</span><span><i class="symbol caught"></i>捕まり・牢屋</span><span class="legend-help">逃げの中の「逃・牢・鬼・助」は行動タイプです。記号をタップすると今の動きが分かります。</span></div>
+
+    <section class="comparison stacked" aria-label="条件Aと条件Bの比較">
+      <article class="sim-card" data-side="a">
+        <header><span class="condition-letter">A</span><div><h2>もとの条件</h2><p id="summary-a"></p></div></header>
+        <div class="canvas-wrap"><canvas id="field-a" tabindex="0" aria-label="条件Aのケイドロの動き"></canvas></div>
+        <div id="status-a" class="status" aria-live="polite"></div>
+        <div class="metrics" id="metrics-a"></div>
+        <canvas id="chart-a" class="chart" aria-label="条件Aの牢屋人数の推移"></canvas>
+      </article>
+
+      <article class="sim-card changed" data-side="b">
+        <header><span class="condition-letter">B</span><div><h2>変えた条件</h2><p id="summary-b"></p></div></header>
+        <div class="canvas-wrap"><canvas id="field-b" tabindex="0" aria-label="条件Bのケイドロの動き"></canvas></div>
+        <div id="status-b" class="status" aria-live="polite"></div>
+        <div class="metrics" id="metrics-b"></div>
+        <canvas id="chart-b" class="chart" aria-label="条件Bの牢屋人数の推移"></canvas>
+      </article>
+    </section>
+
+    <section id="selected-agent" class="selected-agent" hidden aria-live="polite">
+      <div><strong id="agent-name"></strong><span id="agent-state"></span></div>
+      <label>この丸の走る速さ <output id="agent-level-output">5</output>
+        <input id="agent-level" type="range" min="1" max="10" value="5">
+      </label>
+    </section>
+
+    <section class="reflection" aria-labelledby="reflection-title">
+      <h2 id="reflection-title">結果から、次にどこを変える？</h2>
+      <div class="reflection-grid">
+        <label>起きたこと<textarea id="observation" rows="2" placeholder="数字や丸の動きから分かったこと"></textarea></label>
+        <label>説明の見直し<textarea id="revision" rows="2" placeholder="予想と違った理由、次に変えたい条件"></textarea></label>
+      </div>
+      <p class="note">シミュレーターは「決めた動き方」を試しています。実際の楽しさは、遊んだ人の感想と合わせて考えます。</p>
+    </section>
+
+    <details class="teacher-notes">
+      <summary>先生向け：このモデルの見方</summary>
+      <p>50m走の秒数を移動速度の基準にしています。本気走り10秒・回復歩き20秒はルールとして再現しますが、実際の疲労・加速・方向転換・児童同士の接触を測ったモデルではありません。同じ設定と並びなら同じ結果になる固定刻み計算です。</p>
+      <p>「餅」は捕まった逃げ1人を担当し、担当中は救出不能です。「守り」は牢屋の外を巡回します。勝率や平均値だけで楽しさを自動判定しません。</p>
+      <p>逃げタイプは固定された行動仮説です。「逃」は救出に向かわず危険を早めに避け、「牢」は牢屋から離れ、「鬼」は最寄りの鬼から離れ、「助」は捕まった味方がいれば救出へ向かいます。残りの「標準」は危険と救出しやすさから行動を選びます。</p>
+      <p>人数比に唯一の正解はありません。資料上は同数が基本ですが、このモデルは救出が続くため、鬼1：逃げ3を試行開始点にしています。1：5、1：2、1：1と比較し、走力・範囲・待ち時間・実際の感想で調整してください。</p>
+      <a href="https://www.mext.go.jp/sports/content/20240301-kensport01-300000765_1.pdf" target="_blank" rel="noreferrer">50m走の参照資料（スポーツ庁）</a>
+      <span aria-hidden="true"> ／ </span><a href="https://kugikai-nakano.jp/shiryou/1431418622.pdf" target="_blank" rel="noreferrer">ケイドロの人数資料</a>
+      <span aria-hidden="true"> ／ </span><a href="https://www.kyoiku-shuppan.co.jp/docs/e-na/es5/pageindices/index13.html" target="_blank" rel="noreferrer">鬼の人数を考える教育実践</a>
+    </details>
+  </main>
+
+  <aside id="settings" class="settings" aria-label="条件設定" hidden>
+    <div class="settings-head"><div><p id="settings-side-label" class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+    <p class="settings-help">まず一つだけ変えると、結果が変わった理由を考えやすくなります。</p>
+    <form id="settings-form">
+      <div class="preset-picker">
+        <label>比較用パターン
+          <select id="preset-select">
+            <option value="standard">基準 1:3（鬼6・逃げ18）</option>
+            <option value="escape">逃げ有利 1:5（鬼4・逃げ20）</option>
+            <option value="pressure">鬼有利 1:2（鬼8・逃げ16）</option>
+            <option value="equal">伝統的基準 1:1（鬼12・逃げ12）</option>
+            <option value="guard">守り比較 1:3（守り2）</option>
+            <option value="custom">自分で設定</option>
+          </select>
+        </label>
+        <p id="preset-note" class="rule-line"></p>
+      </div>
+      <details open><summary>人数と速さ</summary><div class="setting-grid">
+        <label>鬼の数<input name="oniCount" type="number" min="0" max="15"></label>
+        <label>逃げの数<input name="runnerCount" type="number" min="1" max="40"></label>
+        <label>守りの数<input name="guardCount" type="number" min="0" max="15"></label>
+        <label>餅の数<input name="mochiCount" type="number" min="0" max="15"></label>
+        <label>鬼の速さ（1〜10）<input name="oniLevel" type="range" min="1" max="10"><output data-for="oniLevel"></output></label>
+        <label>走力を変える鬼の割合<input name="oniVariantPercent" type="range" min="0" max="100" step="10"><output data-for="oniVariantPercent"></output></label>
+        <label>その鬼の速さ（1〜10）<input name="oniVariantLevel" type="range" min="1" max="10"><output data-for="oniVariantLevel"></output></label>
+        <label>逃げの速さ（1〜10）<input name="runnerLevel" type="range" min="1" max="10"><output data-for="runnerLevel"></output></label>
+        <label>走力を変える逃げの割合<input name="runnerVariantPercent" type="range" min="0" max="100" step="10"><output data-for="runnerVariantPercent"></output></label>
+        <label>その逃げの速さ（1〜10）<input name="runnerVariantLevel" type="range" min="1" max="10"><output data-for="runnerVariantLevel"></output></label>
+      </div><p class="dependency" id="role-equation"></p></details>
+      <details><summary>逃げタイプ</summary><p class="rule-line">合計100%以下にします。残りは、危険なら逃げ、余裕があれば救出もする「標準」です。</p><div class="setting-grid">
+        <label>逃げに徹する<input name="evaderPercent" type="range" min="0" max="100" step="10"><output data-for="evaderPercent"></output></label>
+        <label>牢屋から離れる<input name="jailAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="jailAvoiderPercent"></output></label>
+        <label>鬼から離れる<input name="oniAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="oniAvoiderPercent"></output></label>
+        <label>助ける<input name="rescuerPercent" type="range" min="0" max="100" step="10"><output data-for="rescuerPercent"></output></label>
+      </div><p class="dependency" id="runner-type-equation"></p></details>
+      <details><summary>場所</summary><p class="rule-line">矩形の「内側」または「外側」を立ち入り禁止にできます。左端・上端は運動場の左上から測ります。</p><div class="setting-grid">
+        <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
+        <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
+        <label>牢屋の位置<select name="jailPosition"><option value="right">右上（運動場）</option><option value="center">中央</option><option value="edge">上辺</option><option value="corner">左上隅</option></select></label>
+        <label>牢屋の幅（m）<input name="jailWidth" type="number" min="2" max="15"></label>
+        <label>牢屋の奥行き（m）<input name="jailHeight" type="number" min="2" max="12"></label>
+        <label class="check"><input name="restrictedEnabled" type="checkbox">立ち入り禁止領域を使う</label>
+        <label>禁止する側<select name="restrictedMode" data-restricted><option value="inside">矩形の内側</option><option value="outside">矩形の外側</option></select></label>
+        <label>矩形の左端（m）<input name="restrictedX" data-restricted type="number" min="0" max="79" step="0.5"></label>
+        <label>矩形の上端（m）<input name="restrictedY" data-restricted type="number" min="0" max="59" step="0.5"></label>
+        <label>矩形の幅（m）<input name="restrictedWidth" data-restricted type="number" min="1" max="80" step="0.5"></label>
+        <label>矩形の高さ（m）<input name="restrictedHeight" data-restricted type="number" min="1" max="60" step="0.5"></label>
+      </div></details>
+      <details><summary>救出と終了</summary><p class="rule-line">牢屋の中で、捕まった本人に味方がタッチすると1人だけ救出されます。</p><div class="setting-grid">
+        <label>救出後の保護（秒）<input name="protectionTime" type="number" min="0" max="20"></label>
+        <label>同時に何人捕まれば終了<input name="captureTarget" type="number" min="1" max="40"></label>
+        <label>制限時間（秒）<input name="timeLimit" type="number" min="30" max="600" step="30"></label>
+      </div></details>
+      <details><summary>作戦</summary><div class="setting-grid">
+        <label>助けに向かいやすさ<input name="rescueTendency" type="range" min="0" max="100" step="5"><output data-for="rescueTendency"></output></label>
+        <label>危険と考える距離（m）<input name="dangerDistance" type="number" min="1" max="15"></label>
+        <label>守りが追える距離（m）<input name="guardRange" type="number" min="1" max="20"></label>
+        <label>標的を追い続ける距離（m）<input name="retargetDistance" type="number" min="3" max="50" step="1"></label>
+        <label>近い逃げへ切替える距離（m）<input name="nearbySwitchDistance" type="number" min="0.5" max="8" step="0.5"></label>
+        <label>餅の拘束上限（秒）<input name="mochiLimit" type="number" min="0" max="180" step="10"><small>0は無制限</small></label>
+        <label>本気で走れる時間（秒）<input name="sprintDuration" type="number" min="1" max="30"></label>
+        <label>回復の歩き時間（秒）<input name="recoveryDuration" type="number" min="1" max="60"></label>
+      </div></details>
+      <p id="settings-error" class="error" role="alert"></p>
+      <div class="settings-actions"><button id="copy-other" class="button" type="button">Aと同じにする</button><button class="button primary" type="submit">この条件で試す</button></div>
+    </form>
+  </aside>
+  <div id="scrim" class="scrim" hidden></div>
+
+  <script>
+/* simulator.js + app.js — GAS用に自動埋め込み */
+const LEVEL_SECONDS=[13.6,12.8,12,11.2,10.5,9.8,9.3,8.8,8.4,8];
+const defaults={oniCount:6,runnerCount:18,guardCount:1,mochiCount:0,oniLevel:5,oniVariantPercent:30,oniVariantLevel:7,runnerLevel:5,runnerVariantPercent:30,runnerVariantLevel:7,evaderPercent:20,jailAvoiderPercent:20,oniAvoiderPercent:20,rescuerPercent:20,fieldWidth:70,fieldHeight:40,jailPosition:'right',jailWidth:8,jailHeight:6,restrictedEnabled:true,restrictedMode:'inside',restrictedX:23,restrictedY:11,restrictedWidth:24,restrictedHeight:18,captureTarget:18,timeLimit:180,touchRescue:true,touchAmount:'one',symbolRescue:false,symbolAmount:'one',symbolHold:2,symbolCooldown:8,protectionTime:4,rescueTendency:55,dangerDistance:5,guardRange:8,retargetDistance:18,nearbySwitchDistance:2.5,mochiLimit:30,sprintDuration:10,recoveryDuration:20};
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const norm=(x,y)=>{const d=Math.hypot(x,y)||1;return{x:x/d,y:y/d}};
+const hash=(seed,id)=>{let x=(seed^Math.imul(id+1,0x9e3779b9))>>>0;return()=>{x+=0x6D2B79F5;let t=x;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}};
+const levelSpeed=level=>50/LEVEL_SECONDS[clamp(Math.round(level),1,10)-1];
+
+const jailFor=c=>{let x=(c.fieldWidth-c.jailWidth)/2,y=(c.fieldHeight-c.jailHeight)/2;if(c.jailPosition==='right'){x=c.fieldWidth-c.jailWidth-5;y=5}else if(c.jailPosition==='edge'){x=(c.fieldWidth-c.jailWidth)/2;y=.7}else if(c.jailPosition==='corner'){x=.7;y=.7}return{x,y,w:c.jailWidth,h:c.jailHeight,cx:x+c.jailWidth/2,cy:y+c.jailHeight/2}};
+const overlaps=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+function validateConfig(c){
+ const errors=[];
+ if(c.guardCount+c.mochiCount>c.oniCount)errors.push('守り＋餅は鬼の数以下にしてください。');
+ if(c.captureTarget>c.runnerCount)errors.push('終了人数は逃げの数以下にしてください。');
+ if(c.oniVariantPercent<0||c.oniVariantPercent>100||c.runnerVariantPercent<0||c.runnerVariantPercent>100)errors.push('走力を変える割合は0〜100%にしてください。');
+ const typeTotal=c.evaderPercent+c.jailAvoiderPercent+c.oniAvoiderPercent+c.rescuerPercent;
+ if(typeTotal>100)errors.push('逃げタイプの割合は合計100%以下にしてください。');
+ if(c.jailWidth>=c.fieldWidth||c.jailHeight>=c.fieldHeight)errors.push('牢屋は活動範囲より小さくしてください。');
+ if(c.restrictedEnabled){
+  const r={x:c.restrictedX,y:c.restrictedY,w:c.restrictedWidth,h:c.restrictedHeight},j=jailFor(c);
+  if(r.w<=0||r.h<=0||r.x<0||r.y<0||r.x+r.w>c.fieldWidth||r.y+r.h>c.fieldHeight)errors.push('立ち入り禁止の矩形は運動場の内側に収めてください。');
+  if(c.restrictedMode==='inside'&&overlaps(r,j))errors.push('牢屋と立ち入り禁止領域が重ならないようにしてください。');
+  if(c.restrictedMode==='outside'&&(j.x<r.x||j.y<r.y||j.x+j.w>r.x+r.w||j.y+j.h>r.y+r.h))errors.push('外側を禁止するときは、牢屋を矩形の内側に入れてください。');
+ }
+ return errors;
+}
+
+class Simulation{
+ constructor(config,seed=20260920){this.config={...defaults,...config};this.seed=seed>>>0;this.reset()}
+ reset(){
+  this.time=0;this.finished=false;this.result='';this.history=[{t:0,n:0}];this.events=[];this.rescueCount=0;this.captureCount=0;this.maxWait=0;this.symbol={progress:0,cooldown:0,worker:null};this.selectedId=null;
+  this.jail=this.makeJail();this.agents=[];
+  const c=this.config;const total=c.oniCount+c.runnerCount,oniVariants=this.variantIds(1,c.oniCount,c.oniVariantPercent,0x51f15e),runnerVariants=this.variantIds(c.oniCount+1,c.runnerCount,c.runnerVariantPercent,0x8da6b3),runnerTypes=this.runnerTypeMap(c.oniCount+1,c.runnerCount);
+  for(let i=0;i<total;i++){const rnd=hash(this.seed,i);const oni=i<c.oniCount;const role=oni?(i<c.guardCount?'guard':i<c.guardCount+c.mochiCount?'mochi':'chaser'):'runner';const id=i+1,isVariant=oni?oniVariants.has(id):runnerVariants.has(id),level=isVariant?(oni?c.oniVariantLevel:c.runnerVariantLevel):(oni?c.oniLevel:c.runnerLevel);
+   this.agents.push({id,team:oni?'oni':'runner',role,runnerType:oni?null:runnerTypes.get(id),state:'active',level,isVariant,speed:levelSpeed(level),x:1+rnd()*(c.fieldWidth-2),y:1+rnd()*(c.fieldHeight-2),vx:0,vy:0,rnd,decision:0,phase:rnd()*Math.PI*2,protectedUntil:0,capturedAt:null,jailedAt:null,waitTotal:0,longestWait:0,captures:0,rescues:0,mochiBy:null,mochiElapsed:0,touchLatch:false,sprintLeft:c.sprintDuration,recoveryUntil:0,wantsSprint:false,moveMode:'すばやく移動',jailMode:i%2?'edge':'wander'});
+  }
+  this.placeOni();for(const a of this.agents)this.enforceAllowed(a);this.assignMochi();
+ }
+ makeJail(){return jailFor(this.config)}
+ variantIds(start,count,percent,salt){const amount=Math.round(count*percent/100),ranked=Array.from({length:count},(_,i)=>{const id=start+i;return{id,score:hash(this.seed^salt,id)()}}).sort((a,b)=>a.score-b.score||a.id-b.id);return new Set(ranked.slice(0,amount).map(x=>x.id))}
+ runnerTypeMap(start,count){const c=this.config,groups=[['evader',c.evaderPercent],['jailAvoider',c.jailAvoiderPercent],['oniAvoider',c.oniAvoiderPercent],['rescuer',c.rescuerPercent]],used=groups.reduce((n,[,p])=>n+p,0);groups.push(['standard',100-used]);const allocations=groups.map(([type,p],index)=>({type,index,count:Math.floor(count*p/100),fraction:count*p/100-Math.floor(count*p/100)})),remaining=count-allocations.reduce((n,g)=>n+g.count,0);allocations.sort((a,b)=>b.fraction-a.fraction||a.index-b.index);for(let i=0;i<remaining;i++)allocations[i%allocations.length].count++;allocations.sort((a,b)=>a.index-b.index);const ranked=Array.from({length:count},(_,i)=>{const id=start+i;return{id,score:hash(this.seed^0xa17e5,id)()}}).sort((a,b)=>a.score-b.score||a.id-b.id),result=new Map();let cursor=0;for(const group of allocations)for(let i=0;i<group.count;i++)result.set(ranked[cursor++].id,group.type);return result}
+ restrictedRect(margin=0){const c=this.config;return{x:c.restrictedX-margin,y:c.restrictedY-margin,w:c.restrictedWidth+margin*2,h:c.restrictedHeight+margin*2}}
+ pointForbidden(p,margin=.35){if(!this.config.restrictedEnabled)return false;const r=this.restrictedRect(this.config.restrictedMode==='inside'?margin:-margin);const inside=p.x>r.x&&p.x<r.x+r.w&&p.y>r.y&&p.y<r.y+r.h;return this.config.restrictedMode==='inside'?inside:!inside}
+ lineBlocked(a,b){if(!this.config.restrictedEnabled||this.config.restrictedMode!=='inside')return false;for(let i=1;i<24;i++){const t=i/24;if(this.pointForbidden({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}))return true}return false}
+ routeDirection(a,target){if(target.cx!==undefined)target={x:target.cx,y:target.cy};if(!this.lineBlocked(a,target))return norm(target.x-a.x,target.y-a.y);const r=this.restrictedRect(.55),corners=[{x:r.x,y:r.y},{x:r.x+r.w,y:r.y},{x:r.x,y:r.y+r.h},{x:r.x+r.w,y:r.y+r.h}].filter(p=>p.x>.35&&p.x<this.config.fieldWidth-.35&&p.y>.35&&p.y<this.config.fieldHeight-.35&&!this.lineBlocked(a,p));let best=null,score=Infinity;for(const p of corners){const s=dist(a,p)+dist(p,target);if(s<score){best=p;score=s}}return best?norm(best.x-a.x,best.y-a.y):norm(target.x-a.x,target.y-a.y)}
+ dispersedDirection(a,target){const base=this.routeDirection(a,target);let rx=0,ry=0;for(const other of this.agents){if(other===a||other.team!=='oni'||other.role==='mochi')continue;const dx=a.x-other.x,dy=a.y-other.y,d=Math.hypot(dx,dy);if(d>0&&d<6){const strength=(6-d)/6;rx+=dx/d*strength;ry+=dy/d*strength}}return norm(base.x+rx*.9,base.y+ry*.9)}
+ distributedTarget(a,runners){if(!runners.length)return null;const ordered=[...runners].sort((u,v)=>dist(a,u)-dist(a,v)||u.id-v.id),choices=Math.min(ordered.length,Math.max(2,this.config.oniCount-this.config.guardCount-this.config.mochiCount));return ordered[(a.id-1)%choices]}
+ targetForChaser(a,runners){if(!runners.length){delete a.targetId;return null}let current=runners.find(r=>r.id===a.targetId),nearest=this.nearest(a,runners);if(!current){current=this.distributedTarget(a,runners)}else{const currentDistance=dist(a,current),nearer=nearest.agent&&nearest.agent.id!==current.id&&nearest.d<=this.config.nearbySwitchDistance;if(currentDistance>this.config.retargetDistance||nearer)current=nearest.agent}a.targetId=current?.id;return current}
+ enforceAllowed(a){const c=this.config;if(!c.restrictedEnabled)return;const r=this.restrictedRect(c.restrictedMode==='inside'?.35:-.35);if(c.restrictedMode==='outside'){const ox=a.x,oy=a.y;a.x=clamp(a.x,r.x,r.x+r.w);a.y=clamp(a.y,r.y,r.y+r.h);if(a.x!==ox)a.vx*=-1;if(a.y!==oy)a.vy*=-1;return}if(!this.pointForbidden(a))return;const candidates=[{x:r.x,y:a.y,axis:'x'},{x:r.x+r.w,y:a.y,axis:'x'},{x:a.x,y:r.y,axis:'y'},{x:a.x,y:r.y+r.h,axis:'y'}].map(p=>({...p,x:clamp(p.x,.35,c.fieldWidth-.35),y:clamp(p.y,.35,c.fieldHeight-.35)})).filter(p=>!this.pointForbidden(p,.34));let best=candidates[0],bd=Infinity;for(const p of candidates){const d=dist(a,p);if(d<bd){best=p;bd=d}}if(best){a.x=best.x;a.y=best.y;if(best.axis==='x')a.vx*=-1;else a.vy*=-1}}
+ placeOni(){const c=this.config;this.agents.filter(a=>a.team==='oni').forEach((a,i)=>{const ang=(i/Math.max(1,c.oniCount))*Math.PI*2;a.x=clamp(this.jail.cx+Math.cos(ang)*(this.jail.w/2+2),.5,c.fieldWidth-.5);a.y=clamp(this.jail.cy+Math.sin(ang)*(this.jail.h/2+2),.5,c.fieldHeight-.5)})}
+ setAgentLevel(id,level){const a=this.agents.find(x=>x.id===id);if(a){a.level=+level;a.speed=levelSpeed(level)}}
+ activeRunners(){return this.agents.filter(a=>a.team==='runner'&&a.state==='active')}
+ caught(){return this.agents.filter(a=>a.team==='runner'&&a.state!=='active')}
+ walkingToJail(){return this.agents.filter(a=>a.team==='runner'&&a.state==='walkingToJail')}
+ jailed(){return this.agents.filter(a=>a.team==='runner'&&a.state==='jailed')}
+ capturable(){return this.activeRunners().filter(a=>a.protectedUntil<=this.time)}
+ nearest(from,list){let best=null,bd=Infinity;for(const a of list){const d=dist(from,a);if(d<bd-.0001||(Math.abs(d-bd)<.0001&&a.id<(best?.id??Infinity))){best=a;bd=d}}return{agent:best,d:bd}}
+ assignMochi(){const mochi=this.agents.filter(a=>a.role==='mochi');const prisoners=this.jailed().filter(r=>!r.mochiBy&&(this.config.mochiLimit===0||r.mochiElapsed<this.config.mochiLimit)).sort((a,b)=>a.capturedAt-b.capturedAt||a.id-b.id);for(const m of mochi){let current=this.agents.find(a=>a.id===m.targetId&&a.state==='jailed'&&a.mochiBy===m.id);if(!current){delete m.targetId;const r=prisoners.shift();if(r){m.targetId=r.id;r.mochiBy=m.id;current=r}}if(current){m.x=clamp(current.x+.5,this.jail.x+.2,this.jail.x+this.jail.w-.2);m.y=current.y}else{m.x=this.jail.cx;m.y=this.jail.cy}}}
+ releaseMochi(r){if(!r.mochiBy)return;const m=this.agents.find(a=>a.id===r.mochiBy);if(m)delete m.targetId;r.mochiBy=null}
+ capture(r,oni){r.state='walkingToJail';r.capturedAt=this.time;r.jailedAt=null;r.protectedUntil=0;r.touchLatch=false;r.mochiElapsed=0;r.mochiBy=null;r.vx=r.vy=0;r.moveMode='牢屋へ歩く';oni.captures++;if(oni.targetId===r.id)delete oni.targetId;this.captureCount++;this.events.push({type:'capture',time:this.time,runnerId:r.id})}
+ arriveJail(r){r.state='jailed';r.jailedAt=this.time;r.x=clamp(r.x,this.jail.x+.25,this.jail.x+this.jail.w-.25);r.y=clamp(r.y,this.jail.y+.25,this.jail.y+this.jail.h-.25);r.phase=r.rnd()*Math.PI*2;r.moveMode=r.jailMode==='edge'?'境界近くで待つ':'牢屋内を移動'}
+ rescue(r,helper){if(r.state!=='jailed'||r.mochiBy)return false;this.releaseMochi(r);const waited=this.time-r.jailedAt;r.waitTotal+=waited;r.longestWait=Math.max(r.longestWait,waited);this.maxWait=Math.max(this.maxWait,waited);r.state='active';r.capturedAt=null;r.jailedAt=null;r.protectedUntil=this.time+this.config.protectionTime;r.x=clamp(helper.x+(r.rnd()-.5)*1.3,.5,this.config.fieldWidth-.5);r.y=clamp(helper.y+(r.rnd()-.5)*1.3,.5,this.config.fieldHeight-.5);this.enforceAllowed(r);r.rescues++;helper.rescues++;this.rescueCount++;this.events.push({type:'rescue',time:this.time,runnerId:r.id});return true}
+ rescueBy(helper,amount){const available=this.jailed().filter(r=>!r.mochiBy).sort((a,b)=>a.capturedAt-b.capturedAt||a.id-b.id);const targets=amount==='all'?available:available.slice(0,1);for(const r of targets)this.rescue(r,helper);return targets.length}
+ decide(a){
+  const c=this.config;a.decision=this.time+.45+a.rnd()*.15;a.wantsSprint=false;
+  if(a.team==='oni'){
+   if(a.role==='mochi')return;
+   const runners=this.capturable();
+   if(a.role==='guard'){
+    const nearby=runners.filter(r=>dist(r,this.jail)<=c.guardRange||Math.hypot(r.x-this.jail.cx,r.y-this.jail.cy)<=c.guardRange+Math.max(this.jail.w,this.jail.h)/2);const n=this.nearest(a,nearby);
+    if(n.agent){const v=this.dispersedDirection(a,n.agent);a.vx=v.x;a.vy=v.y;a.action='牢屋を守る';a.wantsSprint=true;return}
+    const ang=this.time*.55+a.phase;a.target={x:this.jail.cx+Math.cos(ang)*(this.jail.w/2+1.3),y:this.jail.cy+Math.sin(ang)*(this.jail.h/2+1.3)};
+   }else{const target=this.targetForChaser(a,runners);a.target=target?{x:target.x,y:target.y}:null}
+   if(a.target){const v=this.dispersedDirection(a,a.target);a.vx=v.x;a.vy=v.y;a.action=a.role==='guard'?'見張る':'追いかける';a.wantsSprint=a.role==='chaser'}else{a.vx=a.vy=0}
+   return;
+  }
+  if(a.state!=='active')return;
+  const threats=this.agents.filter(o=>o.team==='oni'&&o.role!=='mochi');const threat=this.nearest(a,threats);
+  const type=a.runnerType||'standard';
+  if(type==='oniAvoider'&&threat.agent){const v=norm(a.x-threat.agent.x,a.y-threat.agent.y);a.vx=v.x;a.vy=v.y;a.action='鬼から離れる';a.wantsSprint=threat.d<c.dangerDistance*2;return}
+  if(threat.agent&&threat.d<c.dangerDistance*(type==='evader'?1.35:1)){const v=norm(a.x-threat.agent.x,a.y-threat.agent.y);a.vx=v.x;a.vy=v.y;a.action=type==='evader'?'逃げに徹する':'逃げる';a.wantsSprint=true;return}
+  const canHelp=this.jailed().some(r=>!r.mochiBy)&&a.protectedUntil<=this.time;
+  const helpChance=type==='rescuer'?100:type==='standard'?c.rescueTendency:0;
+  if(canHelp&&a.rnd()*100<helpChance){const target=this.jailed().find(r=>!r.mochiBy);if(target){const v=this.routeDirection(a,target);a.vx=v.x;a.vy=v.y;a.action='助けに行く';a.wantsSprint=true;return}}
+  if(type==='jailAvoider'){const v=norm(a.x-this.jail.cx,a.y-this.jail.cy);a.vx=v.x;a.vy=v.y;a.action='牢屋から離れる';return}
+  const ang=a.phase+this.time*.18+(a.rnd()-.5)*.8;a.vx=Math.cos(ang);a.vy=Math.sin(ang);a.action='動き回る';
+ }
+ move(a,dt){if(a.role==='mochi')return;if(a.state==='walkingToJail'){const v=this.routeDirection(a,this.jail);a.x+=v.x*1.2*dt;a.y+=v.y*1.2*dt;this.enforceAllowed(a);if(Math.hypot(a.x-this.jail.cx,a.y-this.jail.cy)<.35)this.arriveJail(a);return}if(a.state==='jailed'){this.moveInJail(a,dt);return}if(a.state!=='active')return;let factor=.62;if(this.time<a.recoveryUntil){factor=.24;a.moveMode='回復中（歩く）'}else{if(a.recoveryUntil>0){a.recoveryUntil=0;a.sprintLeft=this.config.sprintDuration}if(a.wantsSprint&&a.sprintLeft>0){factor=1;a.sprintLeft=Math.max(0,a.sprintLeft-dt);a.moveMode='本気で走る';if(a.sprintLeft<=0)a.recoveryUntil=this.time+this.config.recoveryDuration}else a.moveMode='すばやく移動'}a.x+=a.vx*a.speed*factor*dt;a.y+=a.vy*a.speed*factor*dt;if(a.x<.35||a.x>this.config.fieldWidth-.35){a.x=clamp(a.x,.35,this.config.fieldWidth-.35);a.vx*=-1;a.phase=Math.PI-a.phase}if(a.y<.35||a.y>this.config.fieldHeight-.35){a.y=clamp(a.y,.35,this.config.fieldHeight-.35);a.vy*=-1;a.phase=-a.phase}this.enforceAllowed(a)}
+ moveInJail(a,dt){const j=this.jail;if(a.jailMode==='edge'){const u=(a.phase+this.time*.18)%(Math.PI*2),rx=j.w/2-.3,ry=j.h/2-.3;a.x=j.cx+Math.cos(u)*rx;a.y=j.cy+Math.sin(u)*ry}else{if(!a.jailTarget||dist(a,a.jailTarget)<.25||Math.floor((this.time-dt)/3)!==Math.floor(this.time/3))a.jailTarget={x:j.x+.35+a.rnd()*(j.w-.7),y:j.y+.35+a.rnd()*(j.h-.7)};const v=norm(a.jailTarget.x-a.x,a.jailTarget.y-a.y);a.x+=v.x*.55*dt;a.y+=v.y*.55*dt;a.x=clamp(a.x,j.x+.2,j.x+j.w-.2);a.y=clamp(a.y,j.y+.2,j.y+j.h-.2)}}
+ processCaptures(){const onis=this.agents.filter(a=>a.team==='oni'&&a.role!=='mochi');const candidates=this.capturable();for(const o of onis){const n=this.nearest(o,candidates.filter(r=>r.state==='active'));if(n.agent&&n.d<=.8)this.capture(n.agent,o)}}
+ processRescues(){const helpers=this.activeRunners().filter(r=>r.protectedUntil<=this.time);for(const h of helpers){const n=this.nearest(h,this.jailed().filter(r=>!r.mochiBy));const touching=n.agent&&n.d<=.8;if(touching&&!h.touchLatch)this.rescue(n.agent,h);h.touchLatch=!!touching}}
+ step(dt=.05){if(this.finished)return;this.time+=dt;this.symbol.cooldown=Math.max(0,this.symbol.cooldown-dt);for(const a of this.agents){if(a.mochiBy){a.mochiElapsed+=dt;if(this.config.mochiLimit>0&&a.mochiElapsed>=this.config.mochiLimit)this.releaseMochi(a)}if(this.time>=a.decision)this.decide(a);this.move(a,dt)}this.processCaptures();this.processRescues(dt);this.assignMochi();
+  if(Math.floor((this.time-dt)*2)!==Math.floor(this.time*2))this.history.push({t:this.time,n:this.caught().length});
+  if(this.caught().length>=this.config.captureTarget){this.finished=true;this.result='鬼側：目標人数をつかまえました'}else if(this.time>=this.config.timeLimit){this.finished=true;this.result='逃げ側：時間いっぱい逃げました'}
+ }
+ metrics(){const runners=this.agents.filter(a=>a.team==='runner');let wait=0,max=this.maxWait;for(const r of runners){const current=r.state==='jailed'?this.time-r.jailedAt:0;wait+=r.waitTotal+current;max=Math.max(max,r.longestWait,current)}return{caught:this.caught().length,walking:this.walkingToJail().length,jailed:this.jailed().length,avgWait:wait/runners.length,maxWait:max,rescues:this.rescueCount,captures:this.captureCount}}
+ snapshot(){return{time:this.time,finished:this.finished,result:this.result,metrics:this.metrics(),agents:this.agents,jail:this.jail,symbol:this.symbol,history:this.history,config:this.config}}
+}
+
+
+const $=s=>document.querySelector(s);const els={run:$('#run'),pause:$('#pause'),reset:$('#reset'),newSeed:$('#new-seed'),clock:$('#shared-clock'),speed:$('#playback-speed'),layout:$('#comparison-layout'),openA:$('#open-settings-a'),openB:$('#open-settings-b'),settings:$('#settings'),sideLabel:$('#settings-side-label'),copyOther:$('#copy-other'),preset:$('#preset-select'),presetNote:$('#preset-note'),scrim:$('#scrim'),form:$('#settings-form'),error:$('#settings-error'),diff:$('#difference'),selected:$('#selected-agent')};
+let configA={...defaults};let configB={...defaults,guardCount:2,rescuerPercent:30};let seed=20260920;let simA,simB,running=false,last=0,acc=0,selected=null,editingSide='b',settingsTrigger=null,audioCtx=null;const eventCursors={a:0,b:0};
+const PRESETS={standard:{...defaults,mochiCount:0},escape:{...defaults,oniCount:4,runnerCount:20,guardCount:1,mochiCount:0,oniVariantPercent:20,oniVariantLevel:6,runnerVariantPercent:40,runnerVariantLevel:8,evaderPercent:40,jailAvoiderPercent:20,oniAvoiderPercent:20,rescuerPercent:10,captureTarget:20},pressure:{...defaults,oniCount:8,runnerCount:16,guardCount:1,mochiCount:0,oniVariantPercent:50,oniVariantLevel:8,runnerVariantPercent:20,runnerVariantLevel:6,evaderPercent:30,jailAvoiderPercent:20,oniAvoiderPercent:30,rescuerPercent:10,captureTarget:16},equal:{...defaults,oniCount:12,runnerCount:12,guardCount:2,mochiCount:0,oniVariantPercent:30,oniVariantLevel:7,runnerVariantPercent:30,runnerVariantLevel:7,evaderPercent:20,jailAvoiderPercent:20,oniAvoiderPercent:20,rescuerPercent:20,captureTarget:12},guard:{...defaults,guardCount:2,mochiCount:0,evaderPercent:20,jailAvoiderPercent:20,oniAvoiderPercent:20,rescuerPercent:30}};
+const PRESET_NOTES={standard:'試行開始点です。救出あり・70×40mでの検証仮説で、公式の最適値ではありません。',escape:'鬼が少なく、逃げと救出の動きが続きやすい条件です。',pressure:'鬼の圧力が高く、待ち時間や早期終了が増えるかを確かめます。',equal:'資料上の基本形です。救出ありでも遊びが続くかを確かめます。',guard:'人数比は1:3のまま、守りを1人から2人へ変える比較用です。',custom:'児童が立てた仮説に合わせて調整する条件です。'};
+const views={a:{field:$('#field-a'),chart:$('#chart-a'),metrics:$('#metrics-a'),status:$('#status-a'),summary:$('#summary-a')},b:{field:$('#field-b'),chart:$('#chart-b'),metrics:$('#metrics-b'),status:$('#status-b'),summary:$('#summary-b')}};
+const TYPE_LABELS={standard:'標準',evader:'逃げに徹する',jailAvoider:'牢屋から離れる',oniAvoider:'鬼から離れる',rescuer:'助ける'};
+
+function reset(){simA=new Simulation(configA,seed);simB=new Simulation(configB,seed);eventCursors.a=eventCursors.b=0;running=false;last=0;acc=0;els.run.textContent='くらべる';els.pause.disabled=true;els.pause.textContent='一時停止';selected=null;els.selected.hidden=true;renderAll()}
+function formatTime(t){const s=Math.floor(t);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+function summary(c){return`鬼${c.oniCount}（追跡${c.oniCount-c.guardCount-c.mochiCount}・守り${c.guardCount}・餅${c.mochiCount}）／逃げ${c.runnerCount}／${c.fieldWidth}×${c.fieldHeight}m`}
+const LABELS={oniCount:'鬼',runnerCount:'逃げ',guardCount:'守り',mochiCount:'餅',oniLevel:'鬼の速さ',oniVariantPercent:'別走力の鬼',oniVariantLevel:'別走力の鬼の速さ',runnerLevel:'逃げの速さ',runnerVariantPercent:'別走力の逃げ',runnerVariantLevel:'別走力の逃げの速さ',evaderPercent:'逃げに徹する',jailAvoiderPercent:'牢屋から離れる',oniAvoiderPercent:'鬼から離れる',rescuerPercent:'助ける',fieldWidth:'横幅',fieldHeight:'奥行き',jailPosition:'牢屋の位置',jailWidth:'牢屋の幅',jailHeight:'牢屋の奥行き',restrictedEnabled:'立入禁止',restrictedMode:'禁止する側',restrictedX:'矩形の左端',restrictedY:'矩形の上端',restrictedWidth:'矩形の幅',restrictedHeight:'矩形の高さ',captureTarget:'終了人数',timeLimit:'制限時間',protectionTime:'保護時間',rescueTendency:'助けやすさ',dangerDistance:'危険距離',guardRange:'守りの範囲',retargetDistance:'標的を追う距離',nearbySwitchDistance:'近い逃げへの切替距離',mochiLimit:'餅の上限',sprintDuration:'本気の時間',recoveryDuration:'回復歩き'};
+function updateDiff(){const diffs=Object.keys(configA).filter(k=>configA[k]!==configB[k]);els.diff.textContent=diffs.length?`Bで変えた条件：${diffs.map(k=>`${LABELS[k]??k} ${display(configA[k])}→${display(configB[k])}`).join('、')}`:'AとBは同じ条件です。結果が同じになるか確かめられます。';views.a.summary.textContent=summary(configA);views.b.summary.textContent=summary(configB)}
+function display(v){if(typeof v==='boolean')return v?'あり':'なし';const map={one:'1人',all:'全員',center:'中央',right:'右上',edge:'辺',corner:'隅',inside:'内側',outside:'外側'};return map[v]??v}
+function ensureAudio(){const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return null;if(!audioCtx)audioCtx=new AudioCtor();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function playCaptureSound(){const ctx=ensureAudio();if(!ctx)return;const now=ctx.currentTime,master=ctx.createGain();master.gain.setValueAtTime(.001,now);master.gain.exponentialRampToValueAtTime(.12,now+.008);master.gain.exponentialRampToValueAtTime(.001,now+.18);master.connect(ctx.destination);for(const [type,f0,f1,delay]of[['square',210,75,0],['sawtooth',520,120,.035]]){const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(f0,now+delay);osc.frequency.exponentialRampToValueAtTime(f1,now+delay+.12);gain.gain.setValueAtTime(.45,now+delay);gain.gain.exponentialRampToValueAtTime(.01,now+delay+.13);osc.connect(gain).connect(master);osc.start(now+delay);osc.stop(now+delay+.14)}}
+function playRescueSound(){const ctx=ensureAudio();if(!ctx)return;const now=ctx.currentTime;for(const [freq,volume]of[[880,.07],[1320,.035],[1760,.02]]){const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.setValueAtTime(freq,now);gain.gain.setValueAtTime(volume,now);gain.gain.exponentialRampToValueAtTime(.001,now+.65);osc.connect(gain).connect(ctx.destination);osc.start(now);osc.stop(now+.68)}}
+function playPendingSounds(){let capture=false,rescue=false;for(const [side,sim]of[['a',simA],['b',simB]]){while(eventCursors[side]<sim.events.length){const event=sim.events[eventCursors[side]++];if(event.type==='capture')capture=true;if(event.type==='rescue')rescue=true}}if(capture)playCaptureSound();if(rescue)playRescueSound()}
+function resizeCanvas(canvas){const dpr=Math.min(devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();const w=Math.max(1,Math.round(r.width*dpr)),h=Math.max(1,Math.round(r.height*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}return{w,h,dpr}}
+function starPath(ctx,x,y,r){ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:r*.44;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()}
+function mochiPath(ctx,x,y,r,phase){const w=Math.sin(phase)*.13;ctx.beginPath();ctx.moveTo(x+r*1.15,y);ctx.bezierCurveTo(x+r*.85,y-r*(.82+w),x-r*.45,y-r*(1.05-w),x-r*1.08,y-r*.08);ctx.bezierCurveTo(x-r*.9,y+r*(.82-w),x+r*.42,y+r*(.95+w),x+r*1.15,y);ctx.closePath()}
+function drawField(view,sim){const s=sim.snapshot();view.field.parentElement.style.aspectRatio=`${s.config.fieldWidth}/${s.config.fieldHeight}`;const{w,h,dpr}=resizeCanvas(view.field),ctx=view.field.getContext('2d');ctx.clearRect(0,0,w,h);const pad=12*dpr,fw=w-pad*2,fh=h-pad*2,sx=fw/s.config.fieldWidth,sy=fh/s.config.fieldHeight;ctx.fillStyle='#edf6e7';ctx.fillRect(pad,pad,fw,fh);ctx.strokeStyle='#6a7b61';ctx.lineWidth=1.5*dpr;ctx.strokeRect(pad,pad,fw,fh);
+ if(s.config.restrictedEnabled){const r={x:s.config.restrictedX,y:s.config.restrictedY,w:s.config.restrictedWidth,h:s.config.restrictedHeight},rx=pad+r.x*sx,ry=pad+r.y*sy,rw=r.w*sx,rh=r.h*sy;ctx.fillStyle='rgba(185,28,28,.18)';if(s.config.restrictedMode==='inside')ctx.fillRect(rx,ry,rw,rh);else{ctx.fillRect(pad,pad,fw,r.y*sy);ctx.fillRect(pad,ry+rh,fw,fh-(r.y+r.h)*sy);ctx.fillRect(pad,ry,r.x*sx,rh);ctx.fillRect(rx+rw,ry,fw-(r.x+r.w)*sx,rh)}ctx.strokeStyle='#b91c1c';ctx.lineWidth=2*dpr;ctx.setLineDash([7*dpr,4*dpr]);ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);ctx.fillStyle='#991b1b';ctx.font=`bold ${11*dpr}px system-ui`;ctx.fillText(s.config.restrictedMode==='inside'?'内側 立入禁止':'外側 立入禁止',rx+5*dpr,ry+15*dpr)}
+ const j=s.jail;ctx.fillStyle='rgba(107,95,80,.12)';ctx.fillRect(pad+j.x*sx,pad+j.y*sy,j.w*sx,j.h*sy);ctx.strokeStyle='#6b5f50';ctx.lineWidth=2*dpr;ctx.setLineDash([5*dpr,4*dpr]);ctx.strokeRect(pad+j.x*sx,pad+j.y*sy,j.w*sx,j.h*sy);ctx.setLineDash([]);ctx.fillStyle='#5b5146';ctx.font=`${11*dpr}px system-ui`;ctx.fillText('ろうや',pad+j.x*sx+5*dpr,pad+j.y*sy+14*dpr);
+ if(s.config.symbolRescue){const cx=pad+j.cx*sx,cy=pad+j.cy*sy;ctx.save();ctx.translate(cx,cy);ctx.rotate(s.time*.7);ctx.fillStyle=s.symbol.cooldown>0?'#9ca3af':'#fbbf24';ctx.strokeStyle='#713f12';ctx.lineWidth=1.5*dpr;ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2?5*dpr:10*dpr;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();if(s.symbol.progress>0){ctx.fillStyle='#1d4ed8';ctx.fillRect(cx-12*dpr,cy+13*dpr,24*dpr*(s.symbol.progress/Math.max(.01,s.config.symbolHold)),3*dpr)}}
+ for(const a of s.agents){const x=pad+a.x*sx,y=pad+a.y*sy,r=Math.max(4.5,Math.min(sx,sy)*.32)*dpr*1.5;if(a.team==='oni'){ctx.lineWidth=1.4*dpr;if(a.role==='chaser'){starPath(ctx,x,y,r*1.08);ctx.fillStyle='#ef1717';ctx.strokeStyle='#991b1b';ctx.fill();ctx.stroke()}else if(a.role==='guard'){ctx.beginPath();ctx.rect(x-r*.58,y-r*1.22,r*1.16,r*2.44);ctx.fillStyle='#f97316';ctx.strokeStyle='#9a3412';ctx.fill();ctx.stroke()}else{mochiPath(ctx,x,y,r,s.time*2+a.id);ctx.fillStyle='#d97706';ctx.strokeStyle='#92400e';ctx.fill();ctx.stroke()}}else{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=a.state==='active'?'#2563eb':a.state==='walkingToJail'?'#9ca3af':'#6b7280';ctx.fill();ctx.strokeStyle=a.protectedUntil>s.time?'#22c55e':'white';ctx.lineWidth=a.protectedUntil>s.time?3*dpr:2*dpr;ctx.stroke();if(a.runnerType!=='standard'){ctx.fillStyle='white';ctx.font=`bold ${7*dpr}px system-ui`;ctx.textAlign='center';ctx.fillText({evader:'逃',jailAvoider:'牢',oniAvoider:'鬼',rescuer:'助'}[a.runnerType],x,y+2.5*dpr)}}const ringR=r*1.48;if(a.moveMode==='本気で走る'){ctx.strokeStyle='#ef4444';ctx.lineWidth=2*dpr;ctx.beginPath();ctx.arc(x,y,ringR,0,Math.PI*2);ctx.stroke()}else if(a.moveMode==='回復中（歩く）'){ctx.strokeStyle='#64748b';ctx.setLineDash([2*dpr,2*dpr]);ctx.beginPath();ctx.arc(x,y,ringR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}if(selected?.side===view.side&&selected.id===a.id){ctx.strokeStyle='#111827';ctx.lineWidth=2*dpr;ctx.beginPath();ctx.arc(x,y,r*1.75,0,Math.PI*2);ctx.stroke()}if(a.role==='guard'||a.role==='mochi'){ctx.fillStyle='white';ctx.font=`bold ${8*dpr}px system-ui`;ctx.textAlign='center';ctx.fillText(a.role==='guard'?'守':'餅',x,y+3*dpr)} }
+ view.transform={pad,sx,sy,dpr};
+}
+function drawChart(view,sim){const s=sim.snapshot(),{w,h,dpr}=resizeCanvas(view.chart),ctx=view.chart.getContext('2d');ctx.clearRect(0,0,w,h);const p=8*dpr,max=Math.max(1,s.config.runnerCount);ctx.strokeStyle='#ddd8cc';ctx.beginPath();ctx.moveTo(p,h-p);ctx.lineTo(w-p,h-p);ctx.stroke();ctx.strokeStyle='#f97316';ctx.lineWidth=2*dpr;ctx.beginPath();s.history.forEach((v,i)=>{const x=p+(v.t/s.config.timeLimit)*(w-p*2),y=h-p-(v.n/max)*(h-p*2);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle='#637083';ctx.font=`${10*dpr}px system-ui`;ctx.fillText('つかまった人数',p,12*dpr)}
+function renderMetrics(view,sim){const m=sim.metrics();view.metrics.innerHTML=[['つかまった',`${m.caught}人`],['平均待ち',`${m.avgWait.toFixed(1)}秒`],['最長待ち',`${m.maxWait.toFixed(1)}秒`],['救出',`${m.rescues}人`]].map(([l,v])=>`<div class="metric"><span>${l}</span><strong>${v}</strong></div>`).join('');view.status.textContent=sim.finished?sim.result:`${m.walking}人が牢屋へ歩き、${m.jailed}人が牢屋内、${m.rescues}人が救出`}
+function updateSelected(){if(!selected)return;const sim=selected.side==='a'?simA:simB,best=sim.agents.find(a=>a.id===selected.id);if(!best)return;const state=best.team==='oni'?({chaser:'追跡',guard:'守り',mochi:'餅'}[best.role]):`${TYPE_LABELS[best.runnerType]}：${({active:best.action||'活動中',walkingToJail:'牢屋へ歩く',jailed:best.jailMode==='edge'?'境界近くで待つ':'牢屋内を移動'}[best.state])}`;$('#agent-state').textContent=`${state}／${best.moveMode}`}
+function renderAll(){updateDiff();views.a.side='a';views.b.side='b';drawField(views.a,simA);drawField(views.b,simB);drawChart(views.a,simA);drawChart(views.b,simB);renderMetrics(views.a,simA);renderMetrics(views.b,simB);updateSelected();els.clock.textContent=formatTime(Math.max(simA.time,simB.time))}
+function frame(ts){if(!running)return;if(!last)last=ts;acc+=Math.min(.1,(ts-last)/1000)*Number(els.speed.value);last=ts;let n=0;while(acc>=.05&&n<12){simA.step(.05);simB.step(.05);acc-=.05;n++}playPendingSounds();renderAll();if(simA.finished&&simB.finished){running=false;els.run.textContent='もう一度';els.pause.disabled=true;return}requestAnimationFrame(frame)}
+function openSettings(side,trigger){editingSide=side;settingsTrigger=trigger;fillForm(side==='a'?configA:configB);els.settings.classList.toggle('left',side==='a');els.sideLabel.textContent=`${side.toUpperCase()}の条件を編集`;els.copyOther.textContent=`${side==='a'?'B':'A'}と同じにする`;els.error.textContent='';els.settings.hidden=false;els.scrim.hidden=false;trigger.setAttribute('aria-expanded','true');$('#close-settings').focus()}
+function closeSettings(){els.settings.hidden=true;els.scrim.hidden=true;if(settingsTrigger){settingsTrigger.setAttribute('aria-expanded','false');settingsTrigger.focus()}settingsTrigger=null}
+function matchPreset(c){return Object.entries(PRESETS).find(([,preset])=>Object.keys(defaults).every(k=>preset[k]===c[k]))?.[0]??'custom'}
+function updatePresetNote(){els.presetNote.textContent=PRESET_NOTES[els.preset.value]}
+function fillForm(c){for(const [k,v]of Object.entries(c)){const el=els.form.elements[k];if(!el)continue;if(el.type==='checkbox')el.checked=v;else el.value=v}els.preset.value=matchPreset(c);updatePresetNote();updateRestrictedInputs();updateRangeOutputs();updateEquation();updateRunnerTypeEquation()}
+function readForm(){const c={...(editingSide==='a'?configA:configB)};for(const k of Object.keys(c)){const el=els.form.elements[k];if(!el)continue;if(el.type==='checkbox')c[k]=el.checked;else if(el.type==='number'||el.type==='range')c[k]=Number(el.value);else c[k]=el.value}return c}
+function updateRangeOutputs(){els.form.querySelectorAll('output[data-for]').forEach(o=>{const n=o.dataset.for,v=Number(els.form.elements[n].value);o.textContent=n==='rescueTendency'||n.endsWith('Percent')?`${v}%`:`${v}（50m ${LEVEL_SECONDS[v-1]}秒相当）`})}
+function updateEquation(){const c=readForm();$('#role-equation').textContent=`追跡する鬼 ${c.oniCount}−守り${c.guardCount}−餅${c.mochiCount}＝${c.oniCount-c.guardCount-c.mochiCount}人`}
+function updateRunnerTypeEquation(){const c=readForm(),used=c.evaderPercent+c.jailAvoiderPercent+c.oniAvoiderPercent+c.rescuerPercent;$('#runner-type-equation').textContent=`指定 ${used}%／標準 ${100-used}%`}
+function updateRestrictedInputs(){const enabled=els.form.elements.restrictedEnabled.checked;els.form.querySelectorAll('[data-restricted]').forEach(el=>el.disabled=!enabled)}
+function selectFromCanvas(side,e){const view=views[side],sim=side==='a'?simA:simB,t=view.transform,r=view.field.getBoundingClientRect(),x=(e.clientX-r.left)*(view.field.width/r.width),y=(e.clientY-r.top)*(view.field.height/r.height);let best=null,bd=Infinity;for(const a of sim.agents){const px=t.pad+a.x*t.sx,py=t.pad+a.y*t.sy,d=Math.hypot(x-px,y-py);if(d<bd){bd=d;best=a}}if(!best||bd>24*t.dpr)return;selected={side,id:best.id};els.selected.hidden=false;$('#agent-name').textContent=`${side.toUpperCase()}：${best.team==='oni'?'鬼':'逃げ'} ${best.id}`;$('#agent-state').textContent=best.team==='oni'?({chaser:'追跡',guard:'守り',mochi:'餅'}[best.role]):({active:best.action||'活動中',jailed:'牢屋で待機'}[best.state]);$('#agent-level').value=best.level;$('#agent-level-output').textContent=`${best.level}（50m ${LEVEL_SECONDS[best.level-1]}秒相当）`;renderAll()}
+
+els.run.addEventListener('click',()=>{ensureAudio();if(simA.finished&&simB.finished)reset();running=true;els.run.textContent='実験中';els.pause.disabled=false;last=0;requestAnimationFrame(frame)});els.pause.addEventListener('click',()=>{running=!running;els.pause.textContent=running?'一時停止':'再開';if(running){ensureAudio();last=0;requestAnimationFrame(frame)}});els.reset.addEventListener('click',reset);els.newSeed.addEventListener('click',()=>{seed=(seed+7919)>>>0;reset()});els.openA.addEventListener('click',()=>openSettings('a',els.openA));els.openB.addEventListener('click',()=>openSettings('b',els.openB));$('#close-settings').addEventListener('click',closeSettings);els.scrim.addEventListener('click',closeSettings);els.copyOther.addEventListener('click',()=>fillForm(editingSide==='a'?configB:configA));els.form.addEventListener('input',()=>{updateRangeOutputs();updateEquation();updateRunnerTypeEquation()});els.form.addEventListener('submit',e=>{e.preventDefault();const next=readForm(),errors=validateConfig(next);els.error.textContent=errors.join(' ');if(errors.length)return;if(editingSide==='a')configA=next;else configB=next;closeSettings();reset()});
+for(const side of['a','b'])views[side].field.addEventListener('click',e=>selectFromCanvas(side,e));$('#agent-level').addEventListener('input',e=>{if(!selected)return;const sim=selected.side==='a'?simA:simB;sim.setAgentLevel(selected.id,e.target.value);$('#agent-level-output').textContent=`${e.target.value}（50m ${LEVEL_SECONDS[e.target.value-1]}秒相当）`;renderAll()});window.addEventListener('resize',renderAll);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!els.settings.hidden)closeSettings()});
+els.layout.addEventListener('change',()=>{document.querySelector('.comparison').classList.toggle('stacked',els.layout.value==='stacked');requestAnimationFrame(renderAll)});
+els.form.elements.restrictedEnabled.addEventListener('change',updateRestrictedInputs);
+els.preset.addEventListener('change',()=>{if(els.preset.value!=='custom')fillForm(PRESETS[els.preset.value]);else updatePresetNote()});
+els.form.addEventListener('input',e=>{if(e.target!==els.preset){els.preset.value='custom';updatePresetNote()}});
+reset();
+
+</script>
+</body>
+</html>

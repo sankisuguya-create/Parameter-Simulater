@@ -50,7 +50,7 @@
       </label>
       <output id="shared-clock" class="clock" aria-live="off">0:00</output>
     </section>
-    <div class="legend" aria-label="記号の見分け方"><span><i class="symbol chaser"></i>追う鬼</span><span><i class="symbol guard"></i>守り</span><span><i class="symbol mochi"></i>餅</span><span><i class="symbol runner"></i>逃げ</span><span><i class="symbol caught"></i>捕まり・牢屋</span><span class="legend-help">記号をタップすると、今の動きが分かります。</span></div>
+    <div class="legend" aria-label="記号の見分け方"><span><i class="symbol chaser"></i>追う鬼</span><span><i class="symbol guard"></i>守り</span><span><i class="symbol mochi"></i>餅</span><span><i class="symbol runner"></i>逃げ</span><span><i class="symbol caught"></i>捕まり・牢屋</span><span class="legend-help">逃げの中の「逃・牢・鬼・助」は行動タイプです。記号をタップすると今の動きが分かります。</span></div>
 
     <section class="comparison stacked" aria-label="条件Aと条件Bの比較">
       <article class="sim-card" data-side="a">
@@ -90,6 +90,7 @@
       <summary>先生向け：このモデルの見方</summary>
       <p>50m走の秒数を移動速度の基準にしています。本気走り10秒・回復歩き20秒はルールとして再現しますが、実際の疲労・加速・方向転換・児童同士の接触を測ったモデルではありません。同じ設定と並びなら同じ結果になる固定刻み計算です。</p>
       <p>「餅」は捕まった逃げ1人を担当し、担当中は救出不能です。「守り」は牢屋の外を巡回します。勝率や平均値だけで楽しさを自動判定しません。</p>
+      <p>逃げタイプは固定された行動仮説です。「逃」は救出に向かわず危険を早めに避け、「牢」は牢屋から離れ、「鬼」は最寄りの鬼から離れ、「助」は捕まった味方がいれば救出へ向かいます。残りの「標準」は危険と救出しやすさから行動を選びます。</p>
       <p>人数比に唯一の正解はありません。資料上は同数が基本ですが、このモデルは救出が続くため、鬼1：逃げ3を試行開始点にしています。1：5、1：2、1：1と比較し、走力・範囲・待ち時間・実際の感想で調整してください。</p>
       <a href="https://www.mext.go.jp/sports/content/20240301-kensport01-300000765_1.pdf" target="_blank" rel="noreferrer">50m走の参照資料（スポーツ庁）</a>
       <span aria-hidden="true"> ／ </span><a href="https://kugikai-nakano.jp/shiryou/1431418622.pdf" target="_blank" rel="noreferrer">ケイドロの人数資料</a>
@@ -120,8 +121,18 @@
         <label>守りの数<input name="guardCount" type="number" min="0" max="15"></label>
         <label>餅の数<input name="mochiCount" type="number" min="0" max="15"></label>
         <label>鬼の速さ（1〜10）<input name="oniLevel" type="range" min="1" max="10"><output data-for="oniLevel"></output></label>
+        <label>走力を変える鬼の割合<input name="oniVariantPercent" type="range" min="0" max="100" step="10"><output data-for="oniVariantPercent"></output></label>
+        <label>その鬼の速さ（1〜10）<input name="oniVariantLevel" type="range" min="1" max="10"><output data-for="oniVariantLevel"></output></label>
         <label>逃げの速さ（1〜10）<input name="runnerLevel" type="range" min="1" max="10"><output data-for="runnerLevel"></output></label>
+        <label>走力を変える逃げの割合<input name="runnerVariantPercent" type="range" min="0" max="100" step="10"><output data-for="runnerVariantPercent"></output></label>
+        <label>その逃げの速さ（1〜10）<input name="runnerVariantLevel" type="range" min="1" max="10"><output data-for="runnerVariantLevel"></output></label>
       </div><p class="dependency" id="role-equation"></p></details>
+      <details><summary>逃げタイプ</summary><p class="rule-line">合計100%以下にします。残りは、危険なら逃げ、余裕があれば救出もする「標準」です。</p><div class="setting-grid">
+        <label>逃げに徹する<input name="evaderPercent" type="range" min="0" max="100" step="10"><output data-for="evaderPercent"></output></label>
+        <label>牢屋から離れる<input name="jailAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="jailAvoiderPercent"></output></label>
+        <label>鬼から離れる<input name="oniAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="oniAvoiderPercent"></output></label>
+        <label>助ける<input name="rescuerPercent" type="range" min="0" max="100" step="10"><output data-for="rescuerPercent"></output></label>
+      </div><p class="dependency" id="runner-type-equation"></p></details>
       <details><summary>場所</summary><p class="rule-line">矩形の「内側」または「外側」を立ち入り禁止にできます。左端・上端は運動場の左上から測ります。</p><div class="setting-grid">
         <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
         <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
@@ -144,6 +155,8 @@
         <label>助けに向かいやすさ<input name="rescueTendency" type="range" min="0" max="100" step="5"><output data-for="rescueTendency"></output></label>
         <label>危険と考える距離（m）<input name="dangerDistance" type="number" min="1" max="15"></label>
         <label>守りが追える距離（m）<input name="guardRange" type="number" min="1" max="20"></label>
+        <label>標的を追い続ける距離（m）<input name="retargetDistance" type="number" min="3" max="50" step="1"></label>
+        <label>近い逃げへ切替える距離（m）<input name="nearbySwitchDistance" type="number" min="0.5" max="8" step="0.5"></label>
         <label>餅の拘束上限（秒）<input name="mochiLimit" type="number" min="0" max="180" step="10"><small>0は無制限</small></label>
         <label>本気で走れる時間（秒）<input name="sprintDuration" type="number" min="1" max="30"></label>
         <label>回復の歩き時間（秒）<input name="recoveryDuration" type="number" min="1" max="60"></label>

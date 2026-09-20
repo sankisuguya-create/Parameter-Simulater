@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:gas": "node scripts/build-gas.mjs",
     "test": "node --test",
     "serve": "node server.mjs"
   }
 }
-
