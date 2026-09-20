@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f4ec">
+  <title>ケイドロ・パラメータ実験室</title>
+  <meta name="description" content="ケイドロの条件を変え、動きと結果のつながりを比べるシミュレーター">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d4ed8'/%3E%3Ccircle cx='23' cy='32' r='12' fill='%23fff'/%3E%3Ccircle cx='42' cy='32' r='12' fill='%23f97316' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">予想 → ためす → 見直す</p>
+      <h1>ケイドロ・パラメータ実験室</h1>
+    </div>
+    <button id="open-settings" class="button secondary" type="button" aria-expanded="false" aria-controls="settings">条件を変える</button>
+  </header>
+
+  <main>
+    <section class="question-strip" aria-labelledby="question-title">
+      <div>
+        <h2 id="question-title">何を変えたら、みんなが動き続けられる？</h2>
+        <p id="difference" aria-live="polite">Bは「守り」を1人増やしています。</p>
+      </div>
+      <label class="prediction">予想 <input id="prediction" type="text" maxlength="80" placeholder="例：牢屋の近くで捕まりやすくなる"></label>
+    </section>
+
+    <section class="toolbar" aria-label="実験の操作">
+      <button id="run" class="button primary" type="button">くらべる</button>
+      <button id="pause" class="button" type="button" disabled>一時停止</button>
+      <button id="reset" class="button" type="button">最初から</button>
+      <button id="new-seed" class="button ghost" type="button">別の並び</button>
+      <label class="speed-control">再生速度
+        <select id="playback-speed">
+          <option value="1">×1</option>
+          <option value="2">×2</option>
+          <option value="4">×4</option>
+        </select>
+      </label>
+      <output id="shared-clock" class="clock" aria-live="off">0:00</output>
+    </section>
+    <div class="legend" aria-label="丸の見分け方"><span><i class="dot chaser"></i>追う鬼</span><span><i class="dot guard"></i>守り</span><span><i class="dot mochi"></i>餅</span><span><i class="dot runner"></i>逃げ</span><span><i class="dot caught"></i>捕まり・移動中</span><span><i class="dot jailed"></i>牢屋</span><span class="legend-help">丸をタップすると、今の動きが分かります。</span></div>
+
+    <section class="comparison" aria-label="条件Aと条件Bの比較">
+      <article class="sim-card" data-side="a">
+        <header><span class="condition-letter">A</span><div><h2>もとの条件</h2><p id="summary-a"></p></div></header>
+        <div class="canvas-wrap"><canvas id="field-a" tabindex="0" aria-label="条件Aのケイドロの動き"></canvas></div>
+        <div id="status-a" class="status" aria-live="polite"></div>
+        <div class="metrics" id="metrics-a"></div>
+        <canvas id="chart-a" class="chart" aria-label="条件Aの牢屋人数の推移"></canvas>
+      </article>
+
+      <article class="sim-card changed" data-side="b">
+        <header><span class="condition-letter">B</span><div><h2>変えた条件</h2><p id="summary-b"></p></div></header>
+        <div class="canvas-wrap"><canvas id="field-b" tabindex="0" aria-label="条件Bのケイドロの動き"></canvas></div>
+        <div id="status-b" class="status" aria-live="polite"></div>
+        <div class="metrics" id="metrics-b"></div>
+        <canvas id="chart-b" class="chart" aria-label="条件Bの牢屋人数の推移"></canvas>
+      </article>
+    </section>
+
+    <section id="selected-agent" class="selected-agent" hidden aria-live="polite">
+      <div><strong id="agent-name"></strong><span id="agent-state"></span></div>
+      <label>この丸の走る速さ <output id="agent-level-output">5</output>
+        <input id="agent-level" type="range" min="1" max="10" value="5">
+      </label>
+    </section>
+
+    <section class="reflection" aria-labelledby="reflection-title">
+      <h2 id="reflection-title">結果から、次にどこを変える？</h2>
+      <div class="reflection-grid">
+        <label>起きたこと<textarea id="observation" rows="2" placeholder="数字や丸の動きから分かったこと"></textarea></label>
+        <label>説明の見直し<textarea id="revision" rows="2" placeholder="予想と違った理由、次に変えたい条件"></textarea></label>
+      </div>
+      <p class="note">シミュレーターは「決めた動き方」を試しています。実際の楽しさは、遊んだ人の感想と合わせて考えます。</p>
+    </section>
+
+    <details class="teacher-notes">
+      <summary>先生向け：このモデルの見方</summary>
+      <p>50m走の秒数を移動速度の基準にしています。本気走り10秒・回復歩き20秒はルールとして再現しますが、実際の疲労・加速・方向転換・児童同士の接触を測ったモデルではありません。同じ設定と並びなら同じ結果になる固定刻み計算です。</p>
+      <p>「餅」は捕まった逃げ1人を担当し、担当中は救出不能です。「守り」は牢屋の外を巡回します。勝率や平均値だけで楽しさを自動判定しません。</p>
+      <a href="https://www.mext.go.jp/sports/content/20240301-kensport01-300000765_1.pdf" target="_blank" rel="noreferrer">50m走の参照資料（スポーツ庁）</a>
+    </details>
+  </main>
+
+  <aside id="settings" class="settings" aria-label="条件設定" hidden>
+    <div class="settings-head"><div><p class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+    <p class="settings-help">まず一つだけ変えると、結果が変わった理由を考えやすくなります。</p>
+    <form id="settings-form">
+      <details open><summary>人数と速さ</summary><div class="setting-grid">
+        <label>鬼の数<input name="oniCount" type="number" min="0" max="15"></label>
+        <label>逃げの数<input name="runnerCount" type="number" min="1" max="40"></label>
+        <label>守りの数<input name="guardCount" type="number" min="0" max="15"></label>
+        <label>餅の数<input name="mochiCount" type="number" min="0" max="15"></label>
+        <label>鬼の速さ（1〜10）<input name="oniLevel" type="range" min="1" max="10"><output data-for="oniLevel"></output></label>
+        <label>逃げの速さ（1〜10）<input name="runnerLevel" type="range" min="1" max="10"><output data-for="runnerLevel"></output></label>
+      </div><p class="dependency" id="role-equation"></p></details>
+      <details><summary>場所</summary><div class="setting-grid">
+        <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
+        <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
+        <label>牢屋の位置<select name="jailPosition"><option value="center">中央</option><option value="edge">辺</option><option value="corner">隅</option></select></label>
+        <label>牢屋の幅（m）<input name="jailWidth" type="number" min="2" max="15"></label>
+        <label>牢屋の奥行き（m）<input name="jailHeight" type="number" min="2" max="12"></label>
+      </div></details>
+      <details><summary>救出と終了</summary><p class="rule-line">牢屋の中で、捕まった本人に味方がタッチすると1人だけ救出されます。</p><div class="setting-grid">
+        <label>救出後の保護（秒）<input name="protectionTime" type="number" min="0" max="20"></label>
+        <label>同時に何人捕まれば終了<input name="captureTarget" type="number" min="1" max="40"></label>
+        <label>制限時間（秒）<input name="timeLimit" type="number" min="30" max="600" step="30"></label>
+      </div></details>
+      <details><summary>作戦</summary><div class="setting-grid">
+        <label>助けに向かいやすさ<input name="rescueTendency" type="range" min="0" max="100" step="5"><output data-for="rescueTendency"></output></label>
+        <label>危険と考える距離（m）<input name="dangerDistance" type="number" min="1" max="15"></label>
+        <label>守りが追える距離（m）<input name="guardRange" type="number" min="1" max="20"></label>
+        <label>餅の拘束上限（秒）<input name="mochiLimit" type="number" min="0" max="180" step="10"><small>0は無制限</small></label>
+        <label>本気で走れる時間（秒）<input name="sprintDuration" type="number" min="1" max="30"></label>
+        <label>回復の歩き時間（秒）<input name="recoveryDuration" type="number" min="1" max="60"></label>
+      </div></details>
+      <p id="settings-error" class="error" role="alert"></p>
+      <div class="settings-actions"><button id="copy-a" class="button" type="button">Aに戻す</button><button class="button primary" type="submit">この条件で試す</button></div>
+    </form>
+  </aside>
+  <div id="scrim" class="scrim" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
+
