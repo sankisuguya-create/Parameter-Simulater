@@ -90,7 +90,10 @@
       <summary>先生向け：このモデルの見方</summary>
       <p>50m走の秒数を移動速度の基準にしています。本気走り10秒・回復歩き20秒はルールとして再現しますが、実際の疲労・加速・方向転換・児童同士の接触を測ったモデルではありません。同じ設定と並びなら同じ結果になる固定刻み計算です。</p>
       <p>「餅」は捕まった逃げ1人を担当し、担当中は救出不能です。「守り」は牢屋の外を巡回します。勝率や平均値だけで楽しさを自動判定しません。</p>
+      <p>人数比に唯一の正解はありません。資料上は同数が基本ですが、このモデルは救出が続くため、鬼1：逃げ3を試行開始点にしています。1：5、1：2、1：1と比較し、走力・範囲・待ち時間・実際の感想で調整してください。</p>
       <a href="https://www.mext.go.jp/sports/content/20240301-kensport01-300000765_1.pdf" target="_blank" rel="noreferrer">50m走の参照資料（スポーツ庁）</a>
+      <span aria-hidden="true"> ／ </span><a href="https://kugikai-nakano.jp/shiryou/1431418622.pdf" target="_blank" rel="noreferrer">ケイドロの人数資料</a>
+      <span aria-hidden="true"> ／ </span><a href="https://www.kyoiku-shuppan.co.jp/docs/e-na/es5/pageindices/index13.html" target="_blank" rel="noreferrer">鬼の人数を考える教育実践</a>
     </details>
   </main>
 
@@ -98,6 +101,19 @@
     <div class="settings-head"><div><p id="settings-side-label" class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
     <p class="settings-help">まず一つだけ変えると、結果が変わった理由を考えやすくなります。</p>
     <form id="settings-form">
+      <div class="preset-picker">
+        <label>比較用パターン
+          <select id="preset-select">
+            <option value="standard">基準 1:3（鬼6・逃げ18）</option>
+            <option value="escape">逃げ有利 1:5（鬼4・逃げ20）</option>
+            <option value="pressure">鬼有利 1:2（鬼8・逃げ16）</option>
+            <option value="equal">伝統的基準 1:1（鬼12・逃げ12）</option>
+            <option value="guard">守り比較 1:3（守り2）</option>
+            <option value="custom">自分で設定</option>
+          </select>
+        </label>
+        <p id="preset-note" class="rule-line"></p>
+      </div>
       <details open><summary>人数と速さ</summary><div class="setting-grid">
         <label>鬼の数<input name="oniCount" type="number" min="0" max="15"></label>
         <label>逃げの数<input name="runnerCount" type="number" min="1" max="40"></label>
