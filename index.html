@@ -103,12 +103,18 @@
         <label>鬼の速さ（1〜10）<input name="oniLevel" type="range" min="1" max="10"><output data-for="oniLevel"></output></label>
         <label>逃げの速さ（1〜10）<input name="runnerLevel" type="range" min="1" max="10"><output data-for="runnerLevel"></output></label>
       </div><p class="dependency" id="role-equation"></p></details>
-      <details><summary>場所</summary><div class="setting-grid">
+      <details><summary>場所</summary><p class="rule-line">矩形の「内側」または「外側」を立ち入り禁止にできます。左端・上端は運動場の左上から測ります。</p><div class="setting-grid">
         <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
         <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
         <label>牢屋の位置<select name="jailPosition"><option value="right">右上（運動場）</option><option value="center">中央</option><option value="edge">上辺</option><option value="corner">左上隅</option></select></label>
         <label>牢屋の幅（m）<input name="jailWidth" type="number" min="2" max="15"></label>
         <label>牢屋の奥行き（m）<input name="jailHeight" type="number" min="2" max="12"></label>
+        <label class="check"><input name="restrictedEnabled" type="checkbox">立ち入り禁止領域を使う</label>
+        <label>禁止する側<select name="restrictedMode" data-restricted><option value="inside">矩形の内側</option><option value="outside">矩形の外側</option></select></label>
+        <label>矩形の左端（m）<input name="restrictedX" data-restricted type="number" min="0" max="79" step="0.5"></label>
+        <label>矩形の上端（m）<input name="restrictedY" data-restricted type="number" min="0" max="59" step="0.5"></label>
+        <label>矩形の幅（m）<input name="restrictedWidth" data-restricted type="number" min="1" max="80" step="0.5"></label>
+        <label>矩形の高さ（m）<input name="restrictedHeight" data-restricted type="number" min="1" max="60" step="0.5"></label>
       </div></details>
       <details><summary>救出と終了</summary><p class="rule-line">牢屋の中で、捕まった本人に味方がタッチすると1人だけ救出されます。</p><div class="setting-grid">
         <label>救出後の保護（秒）<input name="protectionTime" type="number" min="0" max="20"></label>
