@@ -115,23 +115,60 @@
         </label>
         <p id="preset-note" class="rule-line"></p>
       </div>
+      <section class="visual-setup" aria-labelledby="visual-setup-title">
+        <header class="visual-setup-head">
+          <div><p class="eyebrow">見ながら設定</p><h3 id="visual-setup-title">人数と役割</h3></div>
+          <div class="visual-total"><output id="visual-total">24</output><span>人</span></div>
+        </header>
+        <div class="visual-teams">
+          <section class="visual-team oni-team" aria-labelledby="visual-oni-title">
+            <h4 id="visual-oni-title"><i class="visual-person oni" aria-hidden="true"></i>鬼</h4>
+            <div class="visual-main-count">
+              <i class="visual-person oni large" aria-hidden="true"></i>
+              <div class="count-control"><button type="button" data-adjust="oniCount" data-delta="-1" aria-label="鬼を1人減らす">−</button><output data-visual-count="oniCount">6</output><button type="button" data-adjust="oniCount" data-delta="1" aria-label="鬼を1人増やす">＋</button></div>
+            </div>
+            <div class="visual-role-list">
+              <div class="visual-role"><i class="role-token oni">追</i><span>追う鬼</span><strong data-visual-count="chaserCount">5</strong></div>
+              <div class="visual-role"><i class="role-token oni">速</i><span>別の走力</span><div class="mini-step"><button type="button" data-count-adjust="oniVariantPercent" data-delta="-1" aria-label="別走力の鬼を1人減らす">−</button><strong data-visual-count="oniVariantCount">2</strong><button type="button" data-count-adjust="oniVariantPercent" data-delta="1" aria-label="別走力の鬼を1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token guard">守</i><span>守り</span><div class="mini-step"><button type="button" data-adjust="guardCount" data-delta="-1" aria-label="守りを1人減らす">−</button><strong data-visual-count="guardCount">1</strong><button type="button" data-adjust="guardCount" data-delta="1" aria-label="守りを1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token mochi">餅</i><span>餅</span><div class="mini-step"><button type="button" data-adjust="mochiCount" data-delta="-1" aria-label="餅を1人減らす">−</button><strong data-visual-count="mochiCount">0</strong><button type="button" data-adjust="mochiCount" data-delta="1" aria-label="餅を1人増やす">＋</button></div></div>
+            </div>
+          </section>
+          <section class="visual-team runner-team" aria-labelledby="visual-runner-title">
+            <h4 id="visual-runner-title"><i class="visual-person runner" aria-hidden="true"></i>逃げ</h4>
+            <div class="visual-main-count">
+              <i class="visual-person runner large" aria-hidden="true"></i>
+              <div class="count-control"><button type="button" data-adjust="runnerCount" data-delta="-1" aria-label="逃げを1人減らす">−</button><output data-visual-count="runnerCount">18</output><button type="button" data-adjust="runnerCount" data-delta="1" aria-label="逃げを1人増やす">＋</button></div>
+            </div>
+            <div class="visual-role-list">
+              <div class="visual-role"><i class="role-token runner">速</i><span>別の走力</span><div class="mini-step"><button type="button" data-count-adjust="runnerVariantPercent" data-delta="-1" aria-label="別走力の逃げを1人減らす">−</button><strong data-visual-count="runnerVariantCount">5</strong><button type="button" data-count-adjust="runnerVariantPercent" data-delta="1" aria-label="別走力の逃げを1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token runner">逃</i><span>逃げに徹する</span><div class="mini-step"><button type="button" data-type-adjust="evaderPercent" data-delta="-1" aria-label="逃げに徹する人を1人減らす">−</button><strong data-visual-count="evaderCount">4</strong><button type="button" data-type-adjust="evaderPercent" data-delta="1" aria-label="逃げに徹する人を1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token runner">牢</i><span>牢屋から離れる</span><div class="mini-step"><button type="button" data-type-adjust="jailAvoiderPercent" data-delta="-1" aria-label="牢屋から離れる人を1人減らす">−</button><strong data-visual-count="jailAvoiderCount">4</strong><button type="button" data-type-adjust="jailAvoiderPercent" data-delta="1" aria-label="牢屋から離れる人を1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token runner">鬼</i><span>鬼から離れる</span><div class="mini-step"><button type="button" data-type-adjust="oniAvoiderPercent" data-delta="-1" aria-label="鬼から離れる人を1人減らす">−</button><strong data-visual-count="oniAvoiderCount">4</strong><button type="button" data-type-adjust="oniAvoiderPercent" data-delta="1" aria-label="鬼から離れる人を1人増やす">＋</button></div></div>
+              <div class="visual-role"><i class="role-token runner">助</i><span>助ける</span><div class="mini-step"><button type="button" data-type-adjust="rescuerPercent" data-delta="-1" aria-label="助ける人を1人減らす">−</button><strong data-visual-count="rescuerCount">4</strong><button type="button" data-type-adjust="rescuerPercent" data-delta="1" aria-label="助ける人を1人増やす">＋</button></div></div>
+              <div class="visual-role standard-role"><i class="role-token standard">標</i><span>標準</span><strong data-visual-count="standardCount">4</strong></div>
+            </div>
+          </section>
+        </div>
+        <p class="visual-hint">人数は−／＋で変更できます。詳しい速さや距離は下の項目で調整します。</p>
+      </section>
       <details open><summary>人数と速さ</summary><div class="setting-grid">
         <label>鬼の数<input name="oniCount" type="number" min="0" max="15"></label>
         <label>逃げの数<input name="runnerCount" type="number" min="1" max="40"></label>
         <label>守りの数<input name="guardCount" type="number" min="0" max="15"></label>
         <label>餅の数<input name="mochiCount" type="number" min="0" max="15"></label>
         <label>鬼の速さ（1〜10）<input name="oniLevel" type="range" min="1" max="10"><output data-for="oniLevel"></output></label>
-        <label>走力を変える鬼の割合<input name="oniVariantPercent" type="range" min="0" max="100" step="10"><output data-for="oniVariantPercent"></output></label>
+        <label>走力を変える鬼の割合<input name="oniVariantPercent" type="range" min="0" max="100" step="0.1"><output data-for="oniVariantPercent"></output></label>
         <label>その鬼の速さ（1〜10）<input name="oniVariantLevel" type="range" min="1" max="10"><output data-for="oniVariantLevel"></output></label>
         <label>逃げの速さ（1〜10）<input name="runnerLevel" type="range" min="1" max="10"><output data-for="runnerLevel"></output></label>
-        <label>走力を変える逃げの割合<input name="runnerVariantPercent" type="range" min="0" max="100" step="10"><output data-for="runnerVariantPercent"></output></label>
+        <label>走力を変える逃げの割合<input name="runnerVariantPercent" type="range" min="0" max="100" step="0.1"><output data-for="runnerVariantPercent"></output></label>
         <label>その逃げの速さ（1〜10）<input name="runnerVariantLevel" type="range" min="1" max="10"><output data-for="runnerVariantLevel"></output></label>
       </div><p class="dependency" id="role-equation"></p></details>
       <details><summary>逃げタイプ</summary><p class="rule-line">合計100%以下にします。残りは、危険なら逃げ、余裕があれば救出もする「標準」です。</p><div class="setting-grid">
-        <label>逃げに徹する<input name="evaderPercent" type="range" min="0" max="100" step="10"><output data-for="evaderPercent"></output></label>
-        <label>牢屋から離れる<input name="jailAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="jailAvoiderPercent"></output></label>
-        <label>鬼から離れる<input name="oniAvoiderPercent" type="range" min="0" max="100" step="10"><output data-for="oniAvoiderPercent"></output></label>
-        <label>助ける<input name="rescuerPercent" type="range" min="0" max="100" step="10"><output data-for="rescuerPercent"></output></label>
+        <label>逃げに徹する<input name="evaderPercent" type="range" min="0" max="100" step="0.1"><output data-for="evaderPercent"></output></label>
+        <label>牢屋から離れる<input name="jailAvoiderPercent" type="range" min="0" max="100" step="0.1"><output data-for="jailAvoiderPercent"></output></label>
+        <label>鬼から離れる<input name="oniAvoiderPercent" type="range" min="0" max="100" step="0.1"><output data-for="oniAvoiderPercent"></output></label>
+        <label>助ける<input name="rescuerPercent" type="range" min="0" max="100" step="0.1"><output data-for="rescuerPercent"></output></label>
       </div><p class="dependency" id="runner-type-equation"></p></details>
       <details><summary>場所</summary><p class="rule-line">矩形の「内側」または「外側」を立ち入り禁止にできます。左端・上端は運動場の左上から測ります。</p><div class="setting-grid">
         <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
