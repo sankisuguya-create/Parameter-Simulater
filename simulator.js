@@ -1,5 +1,5 @@
 export const LEVEL_SECONDS=[13.6,12.8,12,11.2,10.5,9.8,9.3,8.8,8.4,8];
-export const defaults={oniCount:6,runnerCount:18,guardCount:1,mochiCount:0,oniLevel:5,runnerLevel:5,fieldWidth:70,fieldHeight:40,jailPosition:'right',jailWidth:8,jailHeight:6,restrictedEnabled:false,restrictedMode:'inside',restrictedX:25,restrictedY:12,restrictedWidth:12,restrictedHeight:8,captureTarget:18,timeLimit:180,touchRescue:true,touchAmount:'one',symbolRescue:false,symbolAmount:'one',symbolHold:2,symbolCooldown:8,protectionTime:4,rescueTendency:55,dangerDistance:5,guardRange:8,mochiLimit:30,sprintDuration:10,recoveryDuration:20};
+export const defaults={oniCount:6,runnerCount:18,guardCount:1,mochiCount:0,oniLevel:5,runnerLevel:5,fieldWidth:70,fieldHeight:40,jailPosition:'right',jailWidth:8,jailHeight:6,restrictedEnabled:true,restrictedMode:'inside',restrictedX:23,restrictedY:11,restrictedWidth:24,restrictedHeight:18,captureTarget:18,timeLimit:180,touchRescue:true,touchAmount:'one',symbolRescue:false,symbolAmount:'one',symbolHold:2,symbolCooldown:8,protectionTime:4,rescueTendency:55,dangerDistance:5,guardRange:8,mochiLimit:30,sprintDuration:10,recoveryDuration:20};
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -40,6 +40,8 @@ export class Simulation{
  pointForbidden(p,margin=.35){if(!this.config.restrictedEnabled)return false;const r=this.restrictedRect(this.config.restrictedMode==='inside'?margin:-margin);const inside=p.x>r.x&&p.x<r.x+r.w&&p.y>r.y&&p.y<r.y+r.h;return this.config.restrictedMode==='inside'?inside:!inside}
  lineBlocked(a,b){if(!this.config.restrictedEnabled||this.config.restrictedMode!=='inside')return false;for(let i=1;i<24;i++){const t=i/24;if(this.pointForbidden({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}))return true}return false}
  routeDirection(a,target){if(target.cx!==undefined)target={x:target.cx,y:target.cy};if(!this.lineBlocked(a,target))return norm(target.x-a.x,target.y-a.y);const r=this.restrictedRect(.55),corners=[{x:r.x,y:r.y},{x:r.x+r.w,y:r.y},{x:r.x,y:r.y+r.h},{x:r.x+r.w,y:r.y+r.h}].filter(p=>p.x>.35&&p.x<this.config.fieldWidth-.35&&p.y>.35&&p.y<this.config.fieldHeight-.35&&!this.lineBlocked(a,p));let best=null,score=Infinity;for(const p of corners){const s=dist(a,p)+dist(p,target);if(s<score){best=p;score=s}}return best?norm(best.x-a.x,best.y-a.y):norm(target.x-a.x,target.y-a.y)}
+ dispersedDirection(a,target){const base=this.routeDirection(a,target);let rx=0,ry=0;for(const other of this.agents){if(other===a||other.team!=='oni'||other.role==='mochi')continue;const dx=a.x-other.x,dy=a.y-other.y,d=Math.hypot(dx,dy);if(d>0&&d<6){const strength=(6-d)/6;rx+=dx/d*strength;ry+=dy/d*strength}}return norm(base.x+rx*.9,base.y+ry*.9)}
+ distributedTarget(a,runners){if(!runners.length)return null;const ordered=[...runners].sort((u,v)=>dist(a,u)-dist(a,v)||u.id-v.id),choices=Math.min(ordered.length,Math.max(2,this.config.oniCount-this.config.guardCount-this.config.mochiCount));return ordered[(a.id-1)%choices]}
  enforceAllowed(a){const c=this.config;if(!c.restrictedEnabled)return;const r=this.restrictedRect(c.restrictedMode==='inside'?.35:-.35);if(c.restrictedMode==='outside'){const ox=a.x,oy=a.y;a.x=clamp(a.x,r.x,r.x+r.w);a.y=clamp(a.y,r.y,r.y+r.h);if(a.x!==ox)a.vx*=-1;if(a.y!==oy)a.vy*=-1;return}if(!this.pointForbidden(a))return;const candidates=[{x:r.x,y:a.y,axis:'x'},{x:r.x+r.w,y:a.y,axis:'x'},{x:a.x,y:r.y,axis:'y'},{x:a.x,y:r.y+r.h,axis:'y'}].map(p=>({...p,x:clamp(p.x,.35,c.fieldWidth-.35),y:clamp(p.y,.35,c.fieldHeight-.35)})).filter(p=>!this.pointForbidden(p,.34));let best=candidates[0],bd=Infinity;for(const p of candidates){const d=dist(a,p);if(d<bd){best=p;bd=d}}if(best){a.x=best.x;a.y=best.y;if(best.axis==='x')a.vx*=-1;else a.vy*=-1}}
  placeOni(){const c=this.config;this.agents.filter(a=>a.team==='oni').forEach((a,i)=>{const ang=(i/Math.max(1,c.oniCount))*Math.PI*2;a.x=clamp(this.jail.cx+Math.cos(ang)*(this.jail.w/2+2),.5,c.fieldWidth-.5);a.y=clamp(this.jail.cy+Math.sin(ang)*(this.jail.h/2+2),.5,c.fieldHeight-.5)})}
  setAgentLevel(id,level){const a=this.agents.find(x=>x.id===id);if(a){a.level=+level;a.speed=levelSpeed(level)}}
@@ -62,10 +64,10 @@ export class Simulation{
    const runners=this.capturable();
    if(a.role==='guard'){
     const nearby=runners.filter(r=>dist(r,this.jail)<=c.guardRange||Math.hypot(r.x-this.jail.cx,r.y-this.jail.cy)<=c.guardRange+Math.max(this.jail.w,this.jail.h)/2);const n=this.nearest(a,nearby);
-    if(n.agent){const v=this.routeDirection(a,n.agent);a.vx=v.x;a.vy=v.y;a.action='牢屋を守る';a.wantsSprint=true;return}
+    if(n.agent){const v=this.dispersedDirection(a,n.agent);a.vx=v.x;a.vy=v.y;a.action='牢屋を守る';a.wantsSprint=true;return}
     const ang=this.time*.55+a.phase;a.target={x:this.jail.cx+Math.cos(ang)*(this.jail.w/2+1.3),y:this.jail.cy+Math.sin(ang)*(this.jail.h/2+1.3)};
-   }else{const n=this.nearest(a,runners);a.target=n.agent?{x:n.agent.x,y:n.agent.y}:null}
-   if(a.target){const v=this.routeDirection(a,a.target);a.vx=v.x;a.vy=v.y;a.action=a.role==='guard'?'見張る':'追いかける';a.wantsSprint=a.role==='chaser'}else{a.vx=a.vy=0}
+   }else{const target=this.distributedTarget(a,runners);a.target=target?{x:target.x,y:target.y}:null}
+   if(a.target){const v=this.dispersedDirection(a,a.target);a.vx=v.x;a.vy=v.y;a.action=a.role==='guard'?'見張る':'追いかける';a.wantsSprint=a.role==='chaser'}else{a.vx=a.vy=0}
    return;
   }
   if(a.state!=='active')return;
