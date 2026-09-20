@@ -51,7 +51,7 @@
       </label>
       <output id="shared-clock" class="clock" aria-live="off">0:00</output>
     </section>
-    <div class="legend" aria-label="記号の見分け方"><span><i class="symbol chaser"></i>追う鬼</span><span><i class="symbol guard"></i>守り</span><span><i class="symbol mochi"></i>餅</span><span><i class="symbol runner"></i>逃げ</span><span><i class="symbol caught"></i>捕まり・牢屋</span><span class="legend-help">逃げの中の「逃・牢・鬼・助」は行動タイプです。記号をタップすると今の動きが分かります。</span></div>
+    <div class="legend" aria-label="記号の見分け方"><span><i class="symbol chaser"></i>追う鬼</span><span><i class="symbol guard"></i>守り</span><span><i class="symbol mochi"></i>餅</span><span><i class="symbol runner"></i>逃げ</span><span><i class="symbol caught"></i>捕まり・牢屋</span><span class="legend-help">逃げの中の「逃・鬼・助」は行動タイプです。記号をタップすると今の動きが分かります。</span></div>
 
     <section class="comparison stacked" aria-label="条件Aと条件Bの比較">
       <article class="sim-card" data-side="a">
@@ -119,6 +119,7 @@
         <label>比較用パターン
           <select id="preset-select">
             <option value="standard">基準 1:3（鬼6・逃げ18）</option>
+            <option value="balanced">実測バランス 1:5（鬼4・逃げ20）</option>
             <option value="escape">逃げ有利 1:5（鬼4・逃げ20）</option>
             <option value="pressure">鬼有利 1:2（鬼8・逃げ16）</option>
             <option value="equal">伝統的基準 1:1（鬼12・逃げ12）</option>
@@ -156,7 +157,6 @@
             <div class="visual-role-list">
               <div class="visual-role"><i class="role-token runner">速</i><span>別の走力</span><div class="mini-step"><button type="button" data-count-adjust="runnerVariantPercent" data-delta="-1" aria-label="別走力の逃げを1人減らす">−</button><strong data-visual-count="runnerVariantCount">5</strong><button type="button" data-count-adjust="runnerVariantPercent" data-delta="1" aria-label="別走力の逃げを1人増やす">＋</button></div></div>
               <div class="visual-role"><i class="role-token runner">逃</i><span>逃げに徹する</span><div class="mini-step"><button type="button" data-type-adjust="evaderPercent" data-delta="-1" aria-label="逃げに徹する人を1人減らす">−</button><strong data-visual-count="evaderCount">4</strong><button type="button" data-type-adjust="evaderPercent" data-delta="1" aria-label="逃げに徹する人を1人増やす">＋</button></div></div>
-              <div class="visual-role"><i class="role-token runner">牢</i><span>牢屋から離れる</span><div class="mini-step"><button type="button" data-type-adjust="jailAvoiderPercent" data-delta="-1" aria-label="牢屋から離れる人を1人減らす">−</button><strong data-visual-count="jailAvoiderCount">4</strong><button type="button" data-type-adjust="jailAvoiderPercent" data-delta="1" aria-label="牢屋から離れる人を1人増やす">＋</button></div></div>
               <div class="visual-role"><i class="role-token runner">鬼</i><span>鬼から離れる</span><div class="mini-step"><button type="button" data-type-adjust="oniAvoiderPercent" data-delta="-1" aria-label="鬼から離れる人を1人減らす">−</button><strong data-visual-count="oniAvoiderCount">4</strong><button type="button" data-type-adjust="oniAvoiderPercent" data-delta="1" aria-label="鬼から離れる人を1人増やす">＋</button></div></div>
               <div class="visual-role"><i class="role-token runner">助</i><span>助ける</span><div class="mini-step"><button type="button" data-type-adjust="rescuerPercent" data-delta="-1" aria-label="助ける人を1人減らす">−</button><strong data-visual-count="rescuerCount">4</strong><button type="button" data-type-adjust="rescuerPercent" data-delta="1" aria-label="助ける人を1人増やす">＋</button></div></div>
               <div class="visual-role standard-role"><i class="role-token standard">標</i><span>標準</span><strong data-visual-count="standardCount">4</strong></div>
@@ -179,7 +179,6 @@
       </div><p class="dependency" id="role-equation"></p></details>
       <details><summary>逃げタイプ</summary><p class="rule-line">合計100%以下にします。残りは、危険なら逃げ、余裕があれば救出もする「標準」です。</p><div class="setting-grid">
         <label>逃げに徹する<input name="evaderPercent" type="range" min="0" max="100" step="0.1"><output data-for="evaderPercent"></output></label>
-        <label>牢屋から離れる<input name="jailAvoiderPercent" type="range" min="0" max="100" step="0.1"><output data-for="jailAvoiderPercent"></output></label>
         <label>鬼から離れる<input name="oniAvoiderPercent" type="range" min="0" max="100" step="0.1"><output data-for="oniAvoiderPercent"></output></label>
         <label>助ける<input name="rescuerPercent" type="range" min="0" max="100" step="0.1"><output data-for="rescuerPercent"></output></label>
       </div><p class="dependency" id="runner-type-equation"></p></details>
@@ -228,6 +227,7 @@
         <label>比較用パターン
           <select id="global-comparison-preset" name="comparisonPreset">
             <option value="keep">現在のA・Bを保つ</option>
+            <option value="standard-balanced">基本形 ↔ 実測バランス候補</option>
             <option value="standard-escape">基本形 ↔ 逃げ・救出が続きやすい</option>
             <option value="standard-pressure">基本形 ↔ 鬼の圧力が高い</option>
             <option value="standard-guard">守り1人 ↔ 守り2人</option>
