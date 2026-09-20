@@ -1,5 +1,5 @@
 export const LEVEL_SECONDS=[13.6,12.8,12,11.2,10.5,9.8,9.3,8.8,8.4,8];
-export const defaults={oniCount:6,runnerCount:18,guardCount:1,mochiCount:0,oniLevel:5,runnerLevel:5,fieldWidth:30,fieldHeight:20,jailPosition:'edge',jailWidth:6,jailHeight:4,captureTarget:18,timeLimit:180,touchRescue:true,touchAmount:'one',symbolRescue:false,symbolAmount:'one',symbolHold:2,symbolCooldown:8,protectionTime:4,rescueTendency:55,dangerDistance:5,guardRange:8,mochiLimit:30,sprintDuration:10,recoveryDuration:20};
+export const defaults={oniCount:6,runnerCount:18,guardCount:1,mochiCount:0,oniLevel:5,runnerLevel:5,fieldWidth:70,fieldHeight:40,jailPosition:'right',jailWidth:8,jailHeight:6,captureTarget:18,timeLimit:180,touchRescue:true,touchAmount:'one',symbolRescue:false,symbolAmount:'one',symbolHold:2,symbolCooldown:8,protectionTime:4,rescueTendency:55,dangerDistance:5,guardRange:8,mochiLimit:30,sprintDuration:10,recoveryDuration:20};
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -26,7 +26,7 @@ export class Simulation{
   }
   this.placeOni();this.assignMochi();
  }
- makeJail(){const c=this.config;let x=(c.fieldWidth-c.jailWidth)/2,y=(c.fieldHeight-c.jailHeight)/2;if(c.jailPosition==='edge'){x=(c.fieldWidth-c.jailWidth)/2;y=.7}else if(c.jailPosition==='corner'){x=.7;y=.7}return{x,y,w:c.jailWidth,h:c.jailHeight,cx:x+c.jailWidth/2,cy:y+c.jailHeight/2}}
+ makeJail(){const c=this.config;let x=(c.fieldWidth-c.jailWidth)/2,y=(c.fieldHeight-c.jailHeight)/2;if(c.jailPosition==='right'){x=c.fieldWidth-c.jailWidth-5;y=5}else if(c.jailPosition==='edge'){x=(c.fieldWidth-c.jailWidth)/2;y=.7}else if(c.jailPosition==='corner'){x=.7;y=.7}return{x,y,w:c.jailWidth,h:c.jailHeight,cx:x+c.jailWidth/2,cy:y+c.jailHeight/2}}
  placeOni(){const c=this.config;this.agents.filter(a=>a.team==='oni').forEach((a,i)=>{const ang=(i/Math.max(1,c.oniCount))*Math.PI*2;a.x=clamp(this.jail.cx+Math.cos(ang)*(this.jail.w/2+2),.5,c.fieldWidth-.5);a.y=clamp(this.jail.cy+Math.sin(ang)*(this.jail.h/2+2),.5,c.fieldHeight-.5)})}
  setAgentLevel(id,level){const a=this.agents.find(x=>x.id===id);if(a){a.level=+level;a.speed=levelSpeed(level)}}
  activeRunners(){return this.agents.filter(a=>a.team==='runner'&&a.state==='active')}
@@ -72,4 +72,3 @@ export class Simulation{
  metrics(){const runners=this.agents.filter(a=>a.team==='runner');let wait=0,max=this.maxWait;for(const r of runners){const current=r.state==='jailed'?this.time-r.jailedAt:0;wait+=r.waitTotal+current;max=Math.max(max,r.longestWait,current)}return{caught:this.caught().length,walking:this.walkingToJail().length,jailed:this.jailed().length,avgWait:wait/runners.length,maxWait:max,rescues:this.rescueCount,captures:this.captureCount}}
  snapshot(){return{time:this.time,finished:this.finished,result:this.result,metrics:this.metrics(),agents:this.agents,jail:this.jail,symbol:this.symbol,history:this.history,config:this.config}}
 }
-
