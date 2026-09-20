@@ -15,7 +15,10 @@
       <p class="eyebrow">予想 → ためす → 見直す</p>
       <h1>ケイドロ・パラメータ実験室</h1>
     </div>
-    <button id="open-settings" class="button secondary" type="button" aria-expanded="false" aria-controls="settings">条件を変える</button>
+    <div class="condition-buttons">
+      <button id="open-settings-a" class="button condition-a" type="button" aria-expanded="false" aria-controls="settings">Aの条件</button>
+      <button id="open-settings-b" class="button condition-b" type="button" aria-expanded="false" aria-controls="settings">Bの条件</button>
+    </div>
   </header>
 
   <main>
@@ -92,7 +95,7 @@
   </main>
 
   <aside id="settings" class="settings" aria-label="条件設定" hidden>
-    <div class="settings-head"><div><p class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+    <div class="settings-head"><div><p id="settings-side-label" class="eyebrow">Bの条件を編集</p><h2>条件を変える</h2></div><button id="close-settings" class="icon-button" type="button" aria-label="閉じる">×</button></div>
     <p class="settings-help">まず一つだけ変えると、結果が変わった理由を考えやすくなります。</p>
     <form id="settings-form">
       <details open><summary>人数と速さ</summary><div class="setting-grid">
@@ -130,7 +133,7 @@
         <label>回復の歩き時間（秒）<input name="recoveryDuration" type="number" min="1" max="60"></label>
       </div></details>
       <p id="settings-error" class="error" role="alert"></p>
-      <div class="settings-actions"><button id="copy-a" class="button" type="button">Aに戻す</button><button class="button primary" type="submit">この条件で試す</button></div>
+      <div class="settings-actions"><button id="copy-other" class="button" type="button">Aと同じにする</button><button class="button primary" type="submit">この条件で試す</button></div>
     </form>
   </aside>
   <div id="scrim" class="scrim" hidden></div>
