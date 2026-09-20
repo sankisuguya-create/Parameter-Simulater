@@ -224,6 +224,18 @@
         <div class="global-total-control"><button type="button" id="global-total-minus" aria-label="全体参加者を1人減らす">−</button><output id="global-total-output">24</output><span>人</span><button type="button" id="global-total-plus" aria-label="全体参加者を1人増やす">＋</button></div>
         <input id="global-total" name="totalCount" type="number" min="2" max="55" value="24" aria-label="全体参加者の数">
       </section>
+      <div class="preset-picker">
+        <label>比較用パターン
+          <select id="global-comparison-preset" name="comparisonPreset">
+            <option value="keep">現在のA・Bを保つ</option>
+            <option value="standard-escape">基本形 ↔ 逃げ・救出が続きやすい</option>
+            <option value="standard-pressure">基本形 ↔ 鬼の圧力が高い</option>
+            <option value="standard-guard">守り1人 ↔ 守り2人</option>
+            <option value="escape-pressure">逃げ有利 ↔ 鬼有利</option>
+          </select>
+        </label>
+        <p id="global-comparison-preset-note" class="rule-line">現在のA・Bの役割・走力・行動タイプを保ちます。</p>
+      </div>
       <details open><summary>活動範囲と時間</summary><div class="setting-grid">
         <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
         <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
