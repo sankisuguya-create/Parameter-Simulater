@@ -39,11 +39,17 @@
           <option value="4">×4</option>
         </select>
       </label>
+      <label class="speed-control">並べ方
+        <select id="comparison-layout">
+          <option value="stacked" selected>上下</option>
+          <option value="side">左右</option>
+        </select>
+      </label>
       <output id="shared-clock" class="clock" aria-live="off">0:00</output>
     </section>
     <div class="legend" aria-label="丸の見分け方"><span><i class="dot chaser"></i>追う鬼</span><span><i class="dot guard"></i>守り</span><span><i class="dot mochi"></i>餅</span><span><i class="dot runner"></i>逃げ</span><span><i class="dot caught"></i>捕まり・移動中</span><span><i class="dot jailed"></i>牢屋</span><span class="legend-help">丸をタップすると、今の動きが分かります。</span></div>
 
-    <section class="comparison" aria-label="条件Aと条件Bの比較">
+    <section class="comparison stacked" aria-label="条件Aと条件Bの比較">
       <article class="sim-card" data-side="a">
         <header><span class="condition-letter">A</span><div><h2>もとの条件</h2><p id="summary-a"></p></div></header>
         <div class="canvas-wrap"><canvas id="field-a" tabindex="0" aria-label="条件Aのケイドロの動き"></canvas></div>
@@ -100,7 +106,7 @@
       <details><summary>場所</summary><div class="setting-grid">
         <label>横幅（m）<input name="fieldWidth" type="number" min="15" max="80"></label>
         <label>奥行き（m）<input name="fieldHeight" type="number" min="10" max="60"></label>
-        <label>牢屋の位置<select name="jailPosition"><option value="center">中央</option><option value="edge">辺</option><option value="corner">隅</option></select></label>
+        <label>牢屋の位置<select name="jailPosition"><option value="right">右上（運動場）</option><option value="center">中央</option><option value="edge">上辺</option><option value="corner">左上隅</option></select></label>
         <label>牢屋の幅（m）<input name="jailWidth" type="number" min="2" max="15"></label>
         <label>牢屋の奥行き（m）<input name="jailHeight" type="number" min="2" max="12"></label>
       </div></details>
@@ -126,4 +132,3 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
