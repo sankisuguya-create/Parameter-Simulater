@@ -27,7 +27,7 @@ export function validateConfig(c){
 export class Simulation{
  constructor(config,seed=20260920){this.config={...defaults,...config};this.seed=seed>>>0;this.reset()}
  reset(){
-  this.time=0;this.finished=false;this.result='';this.history=[{t:0,n:0}];this.rescueCount=0;this.captureCount=0;this.maxWait=0;this.symbol={progress:0,cooldown:0,worker:null};this.selectedId=null;
+  this.time=0;this.finished=false;this.result='';this.history=[{t:0,n:0}];this.events=[];this.rescueCount=0;this.captureCount=0;this.maxWait=0;this.symbol={progress:0,cooldown:0,worker:null};this.selectedId=null;
   this.jail=this.makeJail();this.agents=[];
   const c=this.config;const total=c.oniCount+c.runnerCount;
   for(let i=0;i<total;i++){const rnd=hash(this.seed,i);const oni=i<c.oniCount;const role=oni?(i<c.guardCount?'guard':i<c.guardCount+c.mochiCount?'mochi':'chaser'):'runner';const level=oni?c.oniLevel:c.runnerLevel;
@@ -53,9 +53,9 @@ export class Simulation{
  nearest(from,list){let best=null,bd=Infinity;for(const a of list){const d=dist(from,a);if(d<bd-.0001||(Math.abs(d-bd)<.0001&&a.id<(best?.id??Infinity))){best=a;bd=d}}return{agent:best,d:bd}}
  assignMochi(){const mochi=this.agents.filter(a=>a.role==='mochi');const prisoners=this.jailed().filter(r=>!r.mochiBy&&(this.config.mochiLimit===0||r.mochiElapsed<this.config.mochiLimit)).sort((a,b)=>a.capturedAt-b.capturedAt||a.id-b.id);for(const m of mochi){let current=this.agents.find(a=>a.id===m.targetId&&a.state==='jailed'&&a.mochiBy===m.id);if(!current){delete m.targetId;const r=prisoners.shift();if(r){m.targetId=r.id;r.mochiBy=m.id;current=r}}if(current){m.x=clamp(current.x+.5,this.jail.x+.2,this.jail.x+this.jail.w-.2);m.y=current.y}else{m.x=this.jail.cx;m.y=this.jail.cy}}}
  releaseMochi(r){if(!r.mochiBy)return;const m=this.agents.find(a=>a.id===r.mochiBy);if(m)delete m.targetId;r.mochiBy=null}
- capture(r,oni){r.state='walkingToJail';r.capturedAt=this.time;r.jailedAt=null;r.protectedUntil=0;r.touchLatch=false;r.mochiElapsed=0;r.mochiBy=null;r.vx=r.vy=0;r.moveMode='牢屋へ歩く';oni.captures++;this.captureCount++}
+ capture(r,oni){r.state='walkingToJail';r.capturedAt=this.time;r.jailedAt=null;r.protectedUntil=0;r.touchLatch=false;r.mochiElapsed=0;r.mochiBy=null;r.vx=r.vy=0;r.moveMode='牢屋へ歩く';oni.captures++;this.captureCount++;this.events.push({type:'capture',time:this.time,runnerId:r.id})}
  arriveJail(r){r.state='jailed';r.jailedAt=this.time;r.x=clamp(r.x,this.jail.x+.25,this.jail.x+this.jail.w-.25);r.y=clamp(r.y,this.jail.y+.25,this.jail.y+this.jail.h-.25);r.phase=r.rnd()*Math.PI*2;r.moveMode=r.jailMode==='edge'?'境界近くで待つ':'牢屋内を移動'}
- rescue(r,helper){if(r.state!=='jailed'||r.mochiBy)return false;this.releaseMochi(r);const waited=this.time-r.jailedAt;r.waitTotal+=waited;r.longestWait=Math.max(r.longestWait,waited);this.maxWait=Math.max(this.maxWait,waited);r.state='active';r.capturedAt=null;r.jailedAt=null;r.protectedUntil=this.time+this.config.protectionTime;r.x=clamp(helper.x+(r.rnd()-.5)*1.3,.5,this.config.fieldWidth-.5);r.y=clamp(helper.y+(r.rnd()-.5)*1.3,.5,this.config.fieldHeight-.5);this.enforceAllowed(r);r.rescues++;helper.rescues++;this.rescueCount++;return true}
+ rescue(r,helper){if(r.state!=='jailed'||r.mochiBy)return false;this.releaseMochi(r);const waited=this.time-r.jailedAt;r.waitTotal+=waited;r.longestWait=Math.max(r.longestWait,waited);this.maxWait=Math.max(this.maxWait,waited);r.state='active';r.capturedAt=null;r.jailedAt=null;r.protectedUntil=this.time+this.config.protectionTime;r.x=clamp(helper.x+(r.rnd()-.5)*1.3,.5,this.config.fieldWidth-.5);r.y=clamp(helper.y+(r.rnd()-.5)*1.3,.5,this.config.fieldHeight-.5);this.enforceAllowed(r);r.rescues++;helper.rescues++;this.rescueCount++;this.events.push({type:'rescue',time:this.time,runnerId:r.id});return true}
  rescueBy(helper,amount){const available=this.jailed().filter(r=>!r.mochiBy).sort((a,b)=>a.capturedAt-b.capturedAt||a.id-b.id);const targets=amount==='all'?available:available.slice(0,1);for(const r of targets)this.rescue(r,helper);return targets.length}
  decide(a){
   const c=this.config;a.decision=this.time+.45+a.rnd()*.15;a.wantsSprint=false;
