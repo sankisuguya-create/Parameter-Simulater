@@ -253,7 +253,7 @@ function optIcon(id,v){
 }
 function ico(id){ if(id==="angle") return optIcon("angle","60"); if(MYICON[id]) return svgI(MYICON[id]); return ICON[id]?'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">'+ICON[id]+'</svg>':""; }
 var NUMS=[
-  {id:"bpm",name:"回す はやさ",unit:"bpm（1分に 回す 回数）",min:40,max:200,step:5,def:120},
+  {id:"bpm",name:"回す はやさ",unit:"bpm（1分に 回す 回数）",min:40,max:200,step:5,def:60},
   {id:"nstop",name:"止まる 回数",unit:"回",min:0,max:10,step:1,def:2},
   {id:"nwait",name:"待つ 回数（とばずに なわを 見おくる）",unit:"回",min:0,max:30,step:1,def:0},
   {id:"wrot",name:"1回で 見おくる なわ（2周目なら 1）",unit:"周",min:1,max:3,step:1,def:1},
@@ -320,7 +320,7 @@ paintLevers(); paintNums();
 
 /* ===== 場（m）=====  回し手の手は x=2 と x=6、y=3 */
 var S=50, N=10, L=180, HL=2, HR=6, Y0=3;
-function P(){ return 60/(+st.bpm||120); }
+function P(){ return 60/(+st.bpm||60); }
 function hands(){ return st.height==="same"?[0.9,0.9]:[0.7,1.15]; }
 /* なわ：手と手を むすぶ じくの まわりを回る。半けいは まん中が いちばん大きい（R）。
    いちばん下＝じく−半けい（0より下は 床で止まる）、いちばん上＝じく＋半けい */
