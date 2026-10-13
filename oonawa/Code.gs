@@ -38,7 +38,11 @@ function doGet(e) {
 /* 先生画面から よばれる。先生でなければ ことわる */
 function saveShown(list) {
   if (!TEACHER_RE.test(currentEmail_())) throw new Error('先生の アカウントだけが 変えられます');
-  var clean = (list || []).filter(function (id) { return ALL_IDS.indexOf(String(id)) >= 0; });
+  // "bpm"（変数ごと）か "angle:60"（選択肢ごと）
+  var clean = (list || []).map(String).filter(function (id) {
+    var m = id.match(/^([a-z]+)(?::([0-9a-z.]+))?$/);
+    return !!m && ALL_IDS.indexOf(m[1]) >= 0;
+  });
   PropertiesService.getScriptProperties().setProperty('shown', JSON.stringify(clean));
   return clean;
 }
