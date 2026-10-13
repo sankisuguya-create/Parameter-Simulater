@@ -226,7 +226,7 @@ var $=function(id){return document.getElementById(id);};
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
 var BOOT=window.OONAWA_BOOT||null;
-var PAGE_BUILD="2026-10-13f";   // Code.gs の BUILD と そろえる
+var PAGE_BUILD="2026-10-13g";   // Code.gs の BUILD と そろえる
 var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。
@@ -743,7 +743,7 @@ $("rate").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; 
 /* 描くのは 1秒に 30回まで（動きの 見え方は ほぼ 同じで、処理は 半分） */
 var lastDraw=0;
 function frame(ts){
-  if(playing){ if(last!==null){ t+=(ts-last)/1000*rate; if(t>=L) t-=L; } last=ts; if(ts-lastDraw>=32){ lastDraw=ts; draw(); } }
+  if(playing){ if(last!==null){ t+=(ts-last)/1000*rate; if(t>=L) t-=L; } last=ts; if(IS_MON||ts-lastDraw>=32){ lastDraw=ts; draw(); } }
   requestAnimationFrame(frame);
 }
 draw(); requestAnimationFrame(frame);
@@ -754,7 +754,9 @@ draw(); requestAnimationFrame(frame);
 var IS_MON=(BOOT&&BOOT.mode==="monitor")||/[?&]view=monitor/.test(location.search)||location.hash==="#monitor";
 var GAS=!!(window.google&&google.script&&google.script.run);
 var bc=null; try{ bc=new BroadcastChannel("oonawa-live"); }catch(e){}
-function liveMsg(){ var c={}; for(var k in st) c[k]=st[k]; return {st:c,t:t,playing:playing,rate:rate,at:Date.now()}; }
+/* 先生の 窓が うしろに 回ると requestAnimationFrame が 止まり t が 進まない。送る 時は 時計で 進めた 位置を 送る */
+function liveT(){ if(!playing||last===null) return t; var x=t+Math.max(0,performance.now()-last)/1000*rate; return ((x%L)+L)%L; }
+function liveMsg(){ var c={}; for(var k in st) c[k]=st[k]; return {st:c,t:liveT(),playing:playing,rate:rate,at:Date.now()}; }
 var lastGas=0, lastBc=0;
 function sendLive(force){
   if(IS_MON) return; var now=Date.now(), m=liveMsg();
@@ -766,14 +768,15 @@ function applyLive(m,elapsedMs){
   if(ch){ planKey=""; GCkey=""; }
   rate=+m.rate||1;
   var target=m.t+(m.playing?Math.max(0,elapsedMs)/1000*rate:0); target=((target%L)+L)%L;
-  if(!m.playing||Math.abs(target-t)>0.4||ch) t=target;
+  var d=Math.abs(target-t); d=Math.min(d,L-d);
+  if(!m.playing||d>1.5||ch||playing!==m.playing) t=target;   // 少しの ずれは 直さない（直すたびに 図が とぶ）
   if(playing!==m.playing) setPlay(m.playing);
   draw();
 }
 if(IS_MON){
   document.body.classList.add("present");
-  if(bc) bc.onmessage=function(e){ applyLive(e.data,Date.now()-e.data.at); };
-  if(GAS){ var poll=function(){ google.script.run.withSuccessHandler(function(r){ if(r&&r.m){ try{ applyLive(JSON.parse(r.m),r.now-r.at+150); }catch(e){} } setTimeout(poll,1000); })
+  var lastBcIn=0; if(bc) bc.onmessage=function(e){ lastBcIn=Date.now(); applyLive(e.data,Date.now()-e.data.at); };
+  if(GAS){ var poll=function(){ google.script.run.withSuccessHandler(function(r){ if(r&&r.m&&Date.now()-lastBcIn>5000){ try{ applyLive(JSON.parse(r.m),r.now-r.at+150); }catch(e){} } setTimeout(poll,1000); })
       .withFailureHandler(function(){ setTimeout(poll,3000); }).getLive(); }; poll(); }
   $("fsBtn").hidden=false;
   /* GAS の 画面は iframe の 中なので、全画面が ことわられる ことが ある。その ときは F11 を 案内する */
