@@ -533,11 +533,11 @@ function draw(){
   // 地面に つく ところ
   // とぶ ばしょ
   out+='<text x="'+n(g.jx)+'" y="'+n(Y0-0.55)+'" text-anchor="middle" font-size="12" fill="var(--ink-soft)">とぶ</text>';
-  // なわ（下に来るほど 太く こく）
+  // なわ（上から 見るので、高い ＝ 目に 近い ほど 太く こく。地面に 来た とき 細く、その とき とぶ）
   /* 上から 見ると、なわは じくの まわりを 回るので 横（なわと 直角の むき）にも ふれる：ずれ＝半けい×sin */
   var lifted=tk.stopped&&st.help==="yes", sw=lifted?0:Math.sin(th), rp=[];
   for(var ri=0;ri<=30;ri++){ var rx=HL+(HR-HL)*ri/30, rq=ropeAt(rx); rp.push(n(rx)+","+n(Y0+rq.r*sw)); }
-  out+='<polyline points="'+rp.join(" ")+'" fill="none" stroke="var(--rope)" stroke-linecap="round" stroke-width="'+(tk.stopped&&st.help==="yes"?1.5:(2+5*low)).toFixed(1)+'" opacity="'+(tk.stopped&&st.help==="yes"?0.35:(0.35+0.65*low)).toFixed(2)+'"/>';
+  out+='<polyline points="'+rp.join(" ")+'" fill="none" stroke="var(--rope)" stroke-linecap="round" stroke-width="'+(tk.stopped&&st.help==="yes"?7:(2+5*(1-low))).toFixed(1)+'" opacity="'+(tk.stopped&&st.help==="yes"?1:(0.35+0.65*(1-low))).toFixed(2)+'"/>';
   // 回し手
   [[HL-0.3,"左"],[HR+0.3,"右"]].forEach(function(a){
     var rot=st.stance==="half"?(a[1]==="左"?55:-55):0;
