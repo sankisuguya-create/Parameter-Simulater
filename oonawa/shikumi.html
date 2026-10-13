@@ -205,6 +205,7 @@ var $=function(id){return document.getElementById(id);};
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
 var BOOT=/*BOOT*/null/*BOOT*/;
+var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。
    古い 保存の "angle" は その 変数の 選択肢 ぜんぶ を 出す 意味に 読む */
@@ -340,19 +341,19 @@ if(MODE==="sensei"){
     if(window.google&&google.script&&google.script.run){
       PENDING++;
       google.script.run.withSuccessHandler(function(){ PENDING--; if(!PENDING) $("saveMsg").textContent="　保存しました"; })
-        .withFailureHandler(function(err){ PENDING--; $("saveMsg").textContent="　保存できませんでした："+(err&&err.message||err); }).saveShown(SHOWN.slice());
+        .withFailureHandler(function(err){ PENDING--; $("saveMsg").textContent="　保存できませんでした："+(err&&err.message||err); }).saveShown(SHOWN.slice(),TKEY);
     } else $("saveMsg").textContent="　（GASの 外なので 保存されません）";
   },true);
 }
 /* 先生と 児童画面の 行き来（先生の アカウントの ときだけ） */
 var PENDING=0;
-if(BOOT&&BOOT.url&&BOOT.teacher){
-  if(MODE==="kodomo"){ $("toSensei").href=BOOT.url+"?p=sensei"; $("toSensei").hidden=false; }
+if(BOOT&&BOOT.url&&(BOOT.teacher||TKEY)){
+  if(MODE==="kodomo"){ $("toSensei").href=BOOT.url+"?p=sensei"+(TKEY?"&k="+encodeURIComponent(TKEY):""); $("toSensei").hidden=false; }
   if(MODE==="sensei"){ var tk2=$("toKodomo"); tk2.href=BOOT.url; tk2.hidden=false;
     tk2.addEventListener("click",function(e){ if(!PENDING) return; e.preventDefault();      // 保存が 終わってから 開く
       var w=window.open("about:blank","_blank"); var iv=setInterval(function(){ if(!PENDING){ clearInterval(iv); if(w) w.location.href=BOOT.url; else window.open(BOOT.url,"_blank"); } },150); }); }
 }
-if(BOOT&&BOOT.denied){ $("modeBar").hidden=false; $("modeBar").textContent="先生用の 画面は、先生の アカウント（@edu.nishi.or.jp）で 開いたときだけ 出ます。いまは 児童画面です。"; }
+if(BOOT&&BOOT.denied){ $("modeBar").hidden=false; $("modeBar").textContent=BOOT.emailOk?"先生用の 画面は、先生の アカウント（@edu.nishi.or.jp）か、合言葉つきの URL で 開いたときだけ 出ます。いまは 児童画面です。":"アカウントが 確認できませんでした（公開範囲が「全員」の ときは こう なります）。GAS の エディタで 関数「teacherUrl」を 実行し、ログに 出た 合言葉つきの URL で 開いてください。いまは 児童画面です。"; }
 Array.prototype.forEach.call(document.querySelectorAll("#levers details"),function(d){ d.addEventListener("toggle",function(){ openG[d.dataset.g]=d.open; save("open",openG); }); });
 function paintLevers(){
   Array.prototype.forEach.call(document.querySelectorAll("#levers .seg"),function(g){
@@ -532,13 +533,11 @@ function draw(){
   // 地面に つく ところ
   // とぶ ばしょ
   out+='<text x="'+n(g.jx)+'" y="'+n(Y0-0.55)+'" text-anchor="middle" font-size="12" fill="var(--ink-soft)">とぶ</text>';
-  out+='<line x1="'+n(g.jx)+'" y1="'+n(Y0-0.4)+'" x2="'+n(g.jx)+'" y2="'+n(Y0+0.4)+'" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="3 3"/>';
   // なわ（下に来るほど 太く こく）
   /* 上から 見ると、なわは じくの まわりを 回るので 横（なわと 直角の むき）にも ふれる：ずれ＝半けい×sin */
   var lifted=tk.stopped&&st.help==="yes", sw=lifted?0:Math.sin(th), rp=[];
   for(var ri=0;ri<=30;ri++){ var rx=HL+(HR-HL)*ri/30, rq=ropeAt(rx); rp.push(n(rx)+","+n(Y0+rq.r*sw)); }
   out+='<polyline points="'+rp.join(" ")+'" fill="none" stroke="var(--rope)" stroke-linecap="round" stroke-width="'+(tk.stopped&&st.help==="yes"?1.5:(2+5*low)).toFixed(1)+'" opacity="'+(tk.stopped&&st.help==="yes"?0.35:(0.35+0.65*low)).toFixed(2)+'"/>';
-  out+='<line x1="'+n(HL)+'" y1="'+n(Y0)+'" x2="'+n(HR)+'" y2="'+n(Y0)+'" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="2 4"/>';
   // 回し手
   [[HL-0.3,"左"],[HR+0.3,"右"]].forEach(function(a){
     var rot=st.stance==="half"?(a[1]==="左"?55:-55):0;
@@ -661,7 +660,7 @@ var lastGas=0, lastBc=0;
 function sendLive(force){
   if(IS_MON) return; var now=Date.now(), m=liveMsg();
   if(bc&&(force||now-lastBc>500)){ lastBc=now; try{ bc.postMessage(m); }catch(e){} }
-  if(GAS&&MODE==="sensei"&&(force?now-lastGas>250:now-lastGas>1000)){ lastGas=now; google.script.run.withFailureHandler(function(){}).saveLive(JSON.stringify(m)); }
+  if(GAS&&MODE==="sensei"&&(force?now-lastGas>250:now-lastGas>1000)){ lastGas=now; google.script.run.withFailureHandler(function(){}).saveLive(JSON.stringify(m),TKEY); }
 }
 function applyLive(m,elapsedMs){
   var ch=false; for(var k in m.st) if(k in st && st[k]!==m.st[k]){ st[k]=m.st[k]; ch=true; }
