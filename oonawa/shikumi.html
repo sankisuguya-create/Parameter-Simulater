@@ -185,7 +185,7 @@ var LEVERS=[
   {id:"angle",name:"入る 角度（なわに たいして）",opts:[["90","90°"],["75","75°"],["60","60°"],["45","45°"],["30","30°"]],def:"60"},
   {id:"vfreq",name:"声かけの 回数",opts:[["none","なし"],["some","ときどき"],["each","入るたび"]],def:"each"},
   {id:"vkind",name:"声かけの しゅるい",opts:[["go","あいず「はい！」"],["rhythm","リズム「そーれ」"]],def:"go"},
-  {id:"cheer",name:"止まったときの 声",opts:[["none","なし"],["cheer","「だいじょうぶ！」"]],def:"cheer"},
+  {id:"cheer",name:"止まったときの 声",opts:[["none","なし"],["cheer","「だいじょうぶ！」"],["donmai","「ドンマイ！」"],["nice","「ナイストライ！」"]],def:"cheer"},
   {id:"order",name:"とぶ じゅんばん",opts:[["a","1から"],["b","入れかえ"]],def:"a"},
   {id:"kankyu",name:"回す はやさの へんか（1回転の 中で）",opts:[["no","いつも 同じ"],["yes","下で はやく、上で ゆっくり"]],def:"no"},
   {id:"cut",name:"なわを 切りこむ（とんだ人の すぐ うしろに 入れる）",opts:[["no","しない"],["yes","する"]],def:"no"},
@@ -201,6 +201,8 @@ var ICON={"bpm": "<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32
 /* 手がきの 下絵から 起こした アイコン（変数・選択肢）。24×24、線だけ */
 function fig(x,h){ var t=22-h; return '<circle cx="'+x+'" cy="'+(t+2)+'" r="2"/><path d="M'+x+' '+(t+4)+'V'+(22-h*0.4)+'M'+x+' '+(22-h*0.4)+'l-2.5 '+(h*0.4)+'M'+x+' '+(22-h*0.4)+'l2.5 '+(h*0.4)+'M'+(x-3)+' '+(t+7)+'h6"/>'; }
 var MYICON={
+  nwait:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  wrot:'<path d="M4 12a8 8 0 1 1 3 6"/><path d="M4 19v-6h6"/>',
   radius:'<path d="M2 12Q12 2 22 12Q12 22 2 12Z"/><path d="M12 8v8M10 10l2-2 2 2M10 14l2 2 2-2"/>',
   height:fig(8,11)+fig(16,16),
   cut:fig(7,14)+'<path d="M4 21q8 1 13-4"/><path d="M14 17h3.5v-3.5"/>'
@@ -237,6 +239,8 @@ function ico(id){ if(id==="angle") return optIcon("angle","60"); if(MYICON[id]) 
 var NUMS=[
   {id:"bpm",name:"回す はやさ",unit:"bpm（1分に 回す 回数）",min:40,max:200,step:5,def:120},
   {id:"nstop",name:"止まる 回数",unit:"回",min:0,max:10,step:1,def:2},
+  {id:"nwait",name:"待つ 回数（とばずに なわを 見おくる）",unit:"回",min:0,max:30,step:1,def:0},
+  {id:"wrot",name:"1回で 見おくる なわ（2周目なら 1）",unit:"周",min:1,max:3,step:1,def:1},
   {id:"ssec",name:"止まっている じかん（1回）",unit:"びょう",min:1,max:20,step:1,def:5},
   {id:"rsec",name:"もとの はやさに もどるまで（1回）",unit:"びょう",min:0,max:15,step:1,def:4}
 ];
@@ -391,7 +395,7 @@ var plan=null, planKey="";
 function appr(){ return ({rhythm:0.8,eye:0.7,chase:0.45})[st.cue]-(st.cut==="yes"?0.15:0); }
 function backSpeed(){ return st.after==="dash"?4.0:2.2; }
 function makePlan(p,g){
-  var key=[p,st.gap,st.dist,st.angle,st.pos,st.bpm,N,st.cue,st.cut,st.after].join();
+  var key=[p,st.nwait,st.wrot,st.nstop,st.ssec,st.rsec,st.gap,st.dist,st.angle,st.pos,st.bpm,N,st.cue,st.cut,st.after].join();
   if(key===planKey) return plan; planKey=key;
   var Q={R:[0,1,2,3,4,5],L:[6,7,8,9]}, side="R", jumps=[], ev={};   // ev[人]＝できごと
   for(var j=0;j<N;j++) ev[j]=[];
@@ -400,7 +404,11 @@ function makePlan(p,g){
   Q.L.forEach(function(j,i){ ev[j].push({type:"q",side:"L",from:-1e9}); });
   var arrive={R:[],L:[]};                                          // 列に 入る じゅん
   Q.R.forEach(function(j){arrive.R.push({j:j,at:-1e9});}); Q.L.forEach(function(j){arrive.L.push({j:j,at:-1e9});});
+  /* 待ち：3分の 中に 等分して 置く。1回の 待ちで wrot 周 とばない（列の 先頭は その場で 待つ） */
+  var K=Math.floor(tau(L).tau/p+1e-9), nW=+st.nwait, wr=+st.wrot, skip={};
+  for(var w=0;w<nW;w++){ var at=Math.round((w+1)*K/(nW+1)); for(var r=0;r<wr;r++) skip[at+r]=1; }
   for(var k=0;k<Math.ceil((L+12)/p);k++){
+    if(skip[k]) continue;
     if(!Q[side].length) side=side==="R"?"L":"R";
     var j=Q[side].shift(), other=side==="R"?"L":"R", tc=(k+1)*p, gs=g[side];
     var t0=tc-TJ/2-appr()*p, tl=tc+TJ/2, te=tl, c=curve();
@@ -413,7 +421,7 @@ function makePlan(p,g){
   jumps.forEach(function(x){ var list=arrive[x.side]; for(var i=0;i<list.length;i++){ if(list[i].j===x.j&&list[i].leave==null){ list[i].leave=x.tc-TJ/2-appr()*p; break; } } });
   var byJ={}; for(var jj=0;jj<N;jj++) byJ[jj]={R:[],L:[]};
   ["R","L"].forEach(function(sd){ arrive[sd].forEach(function(e,i){ byJ[e.j][sd].push(i); }); });
-  plan={ev:ev,jumps:jumps,arrive:arrive,byJ:byJ}; return plan;
+  plan={ev:ev,jumps:jumps,arrive:arrive,byJ:byJ,skip:skip}; return plan;
 }
 function qPos(side,j,T,p){                 // 列の中の いま の ばしょ（前の人が 出ると つめる）
   var list=plan.arrive[side], me=-1, i, mine=plan.byJ[j][side];
@@ -455,7 +463,11 @@ function draw(){
   out+='<text x="'+n(g.jx)+'" y="'+n(Y0-0.55)+'" text-anchor="middle" font-size="12" fill="var(--ink-soft)">とぶ</text>';
   out+='<line x1="'+n(g.jx)+'" y1="'+n(Y0-0.4)+'" x2="'+n(g.jx)+'" y2="'+n(Y0+0.4)+'" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="3 3"/>';
   // なわ（下に来るほど 太く こく）
-  out+='<line x1="'+n(HL)+'" y1="'+n(Y0)+'" x2="'+n(HR)+'" y2="'+n(Y0)+'" stroke="var(--rope)" stroke-linecap="round" stroke-width="'+(tk.stopped&&st.help==="yes"?1.5:(2+5*low)).toFixed(1)+'" opacity="'+(tk.stopped&&st.help==="yes"?0.35:(0.35+0.65*low)).toFixed(2)+'"/>';
+  /* 上から 見ると、なわは じくの まわりを 回るので 横（なわと 直角の むき）にも ふれる：ずれ＝半けい×sin */
+  var lifted=tk.stopped&&st.help==="yes", sw=lifted?0:Math.sin(th), rp=[];
+  for(var ri=0;ri<=30;ri++){ var rx=HL+(HR-HL)*ri/30, rq=ropeAt(rx); rp.push(n(rx)+","+n(Y0+rq.r*sw)); }
+  out+='<polyline points="'+rp.join(" ")+'" fill="none" stroke="var(--rope)" stroke-linecap="round" stroke-width="'+(tk.stopped&&st.help==="yes"?1.5:(2+5*low)).toFixed(1)+'" opacity="'+(tk.stopped&&st.help==="yes"?0.35:(0.35+0.65*low)).toFixed(2)+'"/>';
+  out+='<line x1="'+n(HL)+'" y1="'+n(Y0)+'" x2="'+n(HR)+'" y2="'+n(Y0)+'" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="2 4"/>';
   // 回し手
   [[HL-0.3,"左"],[HR+0.3,"右"]].forEach(function(a){
     var rot=st.stance==="half"?(a[1]==="左"?55:-55):0;
@@ -466,7 +478,7 @@ function draw(){
   // 8の字の 線（とぶ 道 ＋ 回し手の まわりの 弧）
   out+='<polyline points="'+g.c.pts.map(function(q){return n(q[0])+','+n(q[1]);}).join(' ')+'" fill="none" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="2 5" stroke-linejoin="round"/>';
   // ふみきり・ちゃくち（次に とぶ 列の むき）
-  var pl=makePlan(p,g), nextJ=null;
+  var pl=makePlan(p,g), nextJ=null, kNow=Math.floor(T/p);
   for(var i0=0;i0<pl.jumps.length;i0++) if(pl.jumps[i0].tc+TJ/2>=T){ nextJ=pl.jumps[i0]; break; }
   if(nextJ){ var gs=g[nextJ.side];
     out+='<path d="M'+n(gs.take[0])+' '+n(gs.take[1])+' Q'+n(g.jx+gs.d[0]*0)+' '+n(Y0-0.6)+' '+n(gs.land[0])+' '+n(gs.land[1])+'" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-dasharray="4 3"/>';
@@ -487,10 +499,11 @@ function draw(){
   if(tk.stopped){
     out+='<rect x="'+n(F0)+'" y="'+n(F1-0.7)+'" width="'+n(3.8)+'" height="'+n(0.6)+'" rx="6" fill="var(--sheet)" stroke="var(--mark)" stroke-width="2"/>';
     out+='<text x="'+n(F0+1.9)+'" y="'+(n(F1-0.4)+5)+'" text-anchor="middle" font-size="15" font-weight="700" fill="var(--mark)">止まっている '+tk.since.toFixed(1)+'びょう</text>';
-    if(st.cheer==="cheer") out+=bubble(jumpX()-0.8,F1+FH-0.35,"だいじょうぶ！");
+    if(st.cheer!=="none") out+=bubble(jumpX()-0.8,F1+FH-0.35,({cheer:"だいじょうぶ！",donmai:"ドンマイ！",nice:"ナイストライ！"})[st.cheer]);
     if(st.help==="yes") out+='<text x="'+n(F0+FW/2)+'" y="'+n(F1+FH-0.9)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--rope)">回し手が なわを ぬいた（上に あげて まつ）</text>';
   }
   if(st.restart==="seeno" && tk.after!=null && tk.after<1.2*p) out+=bubble(jumpX()-0.6,F1+0.3,"せーの！");
+  if(!tk.stopped && pl.skip[kNow] && nextJ){ var hw=slot(nextJ.side,0); out+=bubble(hw[0]-1.6,hw[1]+0.5,"まって…"); }
   if(tk.ramp){ out+='<text x="'+n(F0+1.9)+'" y="'+(n(F1-0.4)+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="var(--accent)">もとの はやさに もどり中</text>'; }
   $("top").innerHTML=out;
 
@@ -526,10 +539,11 @@ function draw(){
   $("side").innerHTML=s2;
 
   $("scrub").value=t; var mm=Math.floor(t/60), ss=t-mm*60; $("time").textContent=mm+"分"+(ss<10?"0":"")+ss.toFixed(1)+"びょう";
-  var tauEnd=tau(L).tau, all=Math.floor(tauEnd/p+1e-9), now=Math.floor(T/p+1e-9);
+  var tauEnd=tau(L).tau, all=0, now=0;
+  pl.jumps.forEach(function(x){ if(x.tc<=tauEnd+1e-9){ all++; if(x.tc<=T) now++; } });
   $("resAll").textContent=all; $("resNow").textContent=now;
   var nS=+st.nstop, lostS=nS*(+st.ssec), lostR=nS*(+st.rsec)/2;
-  $("calc").textContent="回せた じかん ＝ 180 − 止まった "+lostS+" − もどる間に へった "+lostR+" ＝ "+(+tauEnd.toFixed(1))+" びょう。"+(+tauEnd.toFixed(1))+" × "+st.bpm+" ÷ 60 ＝ "+(tauEnd*st.bpm/60).toFixed(1)+" → "+all+" 回"+
+  $("calc").textContent="回せた じかん ＝ 180 − 止まった "+lostS+" − もどる間に へった "+lostR+" ＝ "+(+tauEnd.toFixed(1))+" びょう。"+(+tauEnd.toFixed(1))+" × "+st.bpm+" ÷ 60 ＝ "+(tauEnd*st.bpm/60).toFixed(1)+(+st.nwait?" → なわ "+Math.floor(tauEnd/p+1e-9)+" 周 − 待ち "+(+st.nwait)+"×"+st.wrot+" 周":"")+" → "+all+" 回"+
     ((nS>0&&(+st.ssec+ +st.rsec)>L/(nS+1))?"（止まる間かくが みじかすぎて、つぎの 止まりと かさなっています）":"");
 }
 /* ピクトグラム（3しゅるい、固定の絵）。原点＝足もと、上が＋、単位m */

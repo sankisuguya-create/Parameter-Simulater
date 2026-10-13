@@ -12,7 +12,7 @@
 var TITLE = '八の字とびの しくみ';
 var TEACHER_RE = /@edu\.nishi\.or\.jp$/i;   // 児童の @kyoiku.edu.nishi.or.jp には 当たらない
 var DEFAULT_SHOWN = ['bpm'];                // はじめに 児童に 出す 変数
-var ALL_IDS = ['bpm','nstop','ssec','rsec',
+var ALL_IDS = ['bpm','nstop','nwait','wrot','ssec','rsec',
   'radius','height','kankyu','cut','stance','help',
   'jump','foot','pos','dist','angle',
   'gap','order','cue','after',
