@@ -205,6 +205,7 @@ var $=function(id){return document.getElementById(id);};
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
 var BOOT=/*BOOT*/null/*BOOT*/;
+var PAGE_BUILD="2026-10-13c";   // Code.gs の BUILD と そろえる
 var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。
@@ -353,6 +354,7 @@ if(BOOT&&BOOT.url&&(BOOT.teacher||TKEY)){
     tk2.addEventListener("click",function(e){ if(!PENDING) return; e.preventDefault();      // 保存が 終わってから 開く
       var w=window.open("about:blank","_blank"); var iv=setInterval(function(){ if(!PENDING){ clearInterval(iv); if(w) w.location.href=BOOT.url; else window.open(BOOT.url,"_blank"); } },150); }); }
 }
+if(BOOT&&BOOT.build!==PAGE_BUILD){ $("monInfo").hidden=false; $("monInfo").textContent="★ Code.gs と shikumi.html の 版が ちがいます（Code.gs："+(BOOT.build||"古い版")+"／画面："+PAGE_BUILD+"）。両方を 貼り直して、新しい バージョンで デプロイしてください。くわしくは URL の 最後に ?p=diag を つけて 開く。"; }
 if(BOOT&&BOOT.denied){ $("modeBar").hidden=false; $("modeBar").textContent=BOOT.emailOk?"先生用の 画面は、先生の アカウント（@edu.nishi.or.jp）か、合言葉つきの URL で 開いたときだけ 出ます。いまは 児童画面です。":"アカウントが 確認できませんでした（公開範囲が「全員」の ときは こう なります）。GAS の エディタで 関数「teacherUrl」を 実行し、ログに 出た 合言葉つきの URL で 開いてください。いまは 児童画面です。"; }
 Array.prototype.forEach.call(document.querySelectorAll("#levers details"),function(d){ d.addEventListener("toggle",function(){ openG[d.dataset.g]=d.open; save("open",openG); }); });
 function paintLevers(){

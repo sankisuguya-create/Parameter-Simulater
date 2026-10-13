@@ -15,6 +15,7 @@
  */
 
 var TITLE = '八の字とびの しくみ';
+var BUILD = '2026-10-13c';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
 var STAFF_DOMAIN = 'edu.nishi.or.jp';
 var STUDENT_LOCAL = /^[0-9]{8}$/;
 var DEFAULT_SHOWN = ['bpm'];                // はじめに 児童に 出す 変数
@@ -27,15 +28,16 @@ var ALL_IDS = ['bpm','nstop','nwait','wrot','ssec','rsec',
 function doGet(e) {
   var email = currentEmail_();
   var prm = (e && e.parameter) || {};
+  if (prm.p === 'diag') return diag_(email, String(prm.k || ''));
   var wantSensei = prm.p === 'sensei';
   var key = String(prm.k || '');
   var isT = isTeacher_(key);
   var wantMon = !!(e && e.parameter && e.parameter.p === 'monitor');
-  var boot = { mode: wantMon ? 'monitor' : ((wantSensei && isT) ? 'sensei' : 'kodomo'), shown: getShown_(),
+  var boot = { mode: wantMon ? 'monitor' : ((wantSensei && isT) ? 'sensei' : 'kodomo'), shown: getShown_(), build: BUILD,
                denied: wantSensei && !isT, emailOk: !!email, teacher: isT, key: (isT && keyOk_(key)) ? key : '', url: ScriptApp.getService().getUrl() || '' };
   var html = HtmlService.createHtmlOutputFromFile('shikumi').getContent();
   var json = JSON.stringify(boot).replace(/</g, '\\u003c');
-  html = html.replace('/*BOOT*/null/*BOOT*/', json);
+  html = html.split('/*BOOT*/null/*BOOT*/').join(json);   // replace は $ を 特別あつかい するので 使わない
   return HtmlService.createHtmlOutput(html)
     .setTitle(boot.mode === 'sensei' ? TITLE + '（先生）' : boot.mode === 'monitor' ? TITLE + '（モニター）' : TITLE)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -71,6 +73,31 @@ function getShown_() {
   var v = PropertiesService.getScriptProperties().getProperty('shown');
   if (!v) return DEFAULT_SHOWN.slice();
   try { return JSON.parse(v); } catch (err) { return DEFAULT_SHOWN.slice(); }
+}
+
+/* ===== 診断：（URL）?p=diag  …  うまく 動かない ときに 開く。児童に 見られても こまらない 中身だけ ===== */
+function diag_(email, key) {
+  var html = '', err = '';
+  try { html = HtmlService.createHtmlOutputFromFile('shikumi').getContent(); } catch (x) { err = String(x); }
+  var mark = function (s) { return html.indexOf(s) >= 0 ? 'ある' : '★ない'; };
+  var m = html.match(/PAGE_BUILD\s*=\s*"([^"]*)"/);
+  var rows = [
+    ['Code.gs の 版', BUILD],
+    ['shikumi.html の 版', m ? m[1] : '★見つからない（古いか、貼り付けが 欠けている）'],
+    ['HTMLファイル「shikumi」', err ? '★読めない：' + err : '読めた（' + html.length + ' 文字）'],
+    ['HTMLの 最後まで ある', /<\/script>\s*$/.test(html) ? 'ある' : '★ない（貼り付けが 途中で 切れている）'],
+    ['差しこみ口 /*BOOT*/', mark('/*BOOT*/null/*BOOT*/')],
+    ['選択肢ごとの スイッチ', mark('data-pubopt')],
+    ['先生用の画面へ リンク', mark('id="toSensei"')],
+    ['開いた人の アドレス', email ? '取れた（' + (isStaffEmail_(email) ? '先生' : '先生ではない') + '）' : '★取れない（公開範囲が「全員」など。合言葉つき URL を 使う）'],
+    ['合言葉', PropertiesService.getScriptProperties().getProperty('teacherKey') ? '設定ずみ' + (key ? (keyOk_(key) ? '（この URL の 合言葉は 正しい）' : '（この URL の 合言葉は ちがう）') : '') : '★まだ（エディタで teacherUrl を 実行）'],
+    ['児童に 出している もの', getShown_().join(', ') || '（なし）'],
+    ['この デプロイの URL', ScriptApp.getService().getUrl() || '★取れない']
+  ];
+  var t = '<meta charset="utf-8"><style>body{font:16px/1.6 sans-serif;padding:16px}td{border-bottom:1px solid #ddd;padding:6px 10px}td:first-child{color:#555}</style>' +
+    '<h1 style="font-size:20px">診断</h1><table>' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + String(r[1]).replace(/</g, '&lt;') + '</td></tr>'; }).join('') + '</table>' +
+    '<p>★の 行が 原因です。</p>';
+  return HtmlService.createHtmlOutput(t).setTitle('診断').addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
 /* ===== 先生の 判定 ===== */
