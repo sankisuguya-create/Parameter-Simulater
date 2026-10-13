@@ -113,10 +113,11 @@ header .tools{flex-wrap:wrap;align-items:center}
 .grp>summary::-webkit-details-marker{display:none}
 .grp>summary::after{content:"＋";margin-left:auto;color:var(--ink-soft)}
 .grp[open]>summary::after{content:"−"}
-.grp .mk{font-size:1.1em;width:1.2em;text-align:center}
+.grp .mk{display:inline-flex;width:1.6em;justify-content:center}
+svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
 .grp .cnt{font-weight:400;font-size:.85em;color:var(--ink-soft)}
 .grp .body{padding:0 12px 10px}
-.g-rope .mk{color:var(--g1)} .g-jump .mk{color:var(--g2)} .g-line .mk{color:var(--g3)} .g-voice .mk{color:var(--g4)}
+.g-rope .mk,.g-rope .mk .ico{color:var(--g1)} .g-jump .mk,.g-jump .mk .ico{color:var(--g2)} .g-line .mk,.g-line .mk .ico{color:var(--g3)} .g-voice .mk,.g-voice .mk .ico{color:var(--g4)}
 .g-rope[open]{border-color:var(--g1)} .g-jump[open]{border-color:var(--g2)} .g-line[open]{border-color:var(--g3)} .g-voice[open]{border-color:var(--g4)}
 .result{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;margin-top:12px;padding:10px 12px;background:var(--rule-soft);border-radius:8px}
 .result .lbl{display:block;font-size:.85em;color:var(--ink-soft)}
@@ -300,6 +301,13 @@ var GROUPS=[
   {id:"line",mk:"■",name:"ならび方・うごき",ids:["gap","order","cue","after"]},
   {id:"voice",mk:"◆",name:"声",ids:["vfreq","vkind","cheer","restart"]}
 ];
+/* まとまりの アイコン（形で 見分けられるよう それぞれ ちがう 形） */
+var GICON={
+  rope:'<circle cx="3.5" cy="5" r="2"/><circle cx="20.5" cy="5" r="2"/><path d="M3.5 8v13M20.5 8v13"/><path d="M3.5 11Q12 27 20.5 11" stroke-dasharray="0"/>',                                   // 回し手 2人と なわ
+  jump:'<circle cx="12" cy="4.5" r="2"/><path d="M12 7v6M12 9l-4-2M12 9l4-2M12 13l-3 4M12 13l3 4"/><path d="M4 21h16"/>', // とぶ 人
+  line:'<circle cx="5" cy="15" r="2"/><circle cx="10" cy="11" r="2"/><circle cx="15" cy="8" r="2"/><path d="M17 18h4M19 16l2 2-2 2"/>', // ならぶ 列と すすむ むき
+  voice:'<path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/>'                                   // 声
+};
 var openG=load("open",{rope:true});
 function leverHtml(l){ var ops=l.opts.filter(function(o){ return MODE!=="kodomo"||optShown(l.id,o[0]); });
   return '<div class="lever" role="group" aria-label="'+l.name+'"><span class="name">'+ico(l.id)+l.name+'</span><div class="seg" data-l="'+l.id+'">'+
@@ -308,7 +316,7 @@ function leverHtml(l){ var ops=l.opts.filter(function(o){ return MODE!=="kodomo"
 $("levers").innerHTML=GROUPS.map(function(g){
   var ids=g.ids.filter(visible); if(!ids.length) return "";
   var cnt=MODE==="sensei"?'<span class="cnt" data-cnt="'+g.id+'"></span>':'<span class="cnt">'+ids.length+'こ</span>';
-  return '<details class="grp g-'+g.id+'" data-g="'+g.id+'"'+(openG[g.id]?' open':'')+'><summary><span class="mk" aria-hidden="true">'+g.mk+'</span>'+g.name+cnt+'</summary><div class="body">'+
+  return '<details class="grp g-'+g.id+'" data-g="'+g.id+'"'+(openG[g.id]?' open':'')+'><summary><span class="mk" aria-hidden="true">'+svgI(GICON[g.id],"ico gico")+'</span>'+g.name+cnt+'</summary><div class="body">'+
     ids.map(function(id){ return leverHtml(LEVERS.filter(function(l){return l.id===id;})[0]); }).join("")+'</div></details>';
 }).join("");
 /* 教師画面：児童に 出す・出さない（保存は Code.gs の saveShown） */
