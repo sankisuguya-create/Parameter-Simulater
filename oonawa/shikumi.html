@@ -496,8 +496,7 @@ function draw(){
   out+='<rect x="'+n(F0)+'" y="'+n(F1)+'" width="'+n(FW)+'" height="'+n(FH)+'" rx="10" fill="var(--floor)"/>';
 
   // 地面に つく ところ
-  if(rs.touches){ out+='<circle cx="'+n(rs.touch)+'" cy="'+n(Y0)+'" r="'+n(0.32)+'" fill="none" stroke="var(--mark)" stroke-width="2" stroke-dasharray="4 3"/>';
-    out+='<circle cx="'+n(rs.touch)+'" cy="'+n(Y0)+'" r="'+n(0.12)+'" fill="var(--mark)" opacity="'+(0.25+0.75*low).toFixed(2)+'"/>'; }
+  if(rs.touches) out+='<circle cx="'+n(rs.touch)+'" cy="'+n(Y0)+'" r="'+n(0.12)+'" fill="var(--mark)"/>';
   // とぶ ばしょ
   out+='<text x="'+n(g.jx)+'" y="'+n(Y0-0.55)+'" text-anchor="middle" font-size="12" fill="var(--ink-soft)">とぶ</text>';
   out+='<line x1="'+n(g.jx)+'" y1="'+n(Y0-0.4)+'" x2="'+n(g.jx)+'" y2="'+n(Y0+0.4)+'" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="3 3"/>';
@@ -515,7 +514,7 @@ function draw(){
     out+='<text x="'+n(a[0])+'" y="'+n(Y0-0.45)+'" text-anchor="middle" font-size="12" fill="var(--ink-soft)">回し手('+a[1]+')</text>';
   });
   // 8の字の 線（とぶ 道 ＋ 回し手の まわりの 弧）
-  out+='<polyline points="'+g.c.pts.map(function(q){return n(q[0])+','+n(q[1]);}).join(' ')+'" fill="none" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="2 5" stroke-linejoin="round"/>';
+  out+='<polyline points="'+g.c.pts.map(function(q){return n(q[0])+','+n(q[1]);}).join(' ')+'" fill="none" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="1 6" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/>';
   // ふみきり・ちゃくち（次に とぶ 列の むき）
   var pl=makePlan(p,g), nextJ=null, kNow=Math.floor(T/p);
   for(var i0=0;i0<pl.jumps.length;i0++) if(pl.jumps[i0].tc+TJ/2>=T){ nextJ=pl.jumps[i0]; break; }
