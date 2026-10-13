@@ -179,7 +179,7 @@ var LEVERS=[
   {id:"radius",name:"なわを 回す 大きさ（まん中の 半けい）",opts:[["0.4","40cm"],["0.6","60cm"],["0.9","90cm"],["1.2","120cm"]],def:"0.9"},
   {id:"height",name:"回し手 2人の 高さ",opts:[["same","そろえる"],["diff","ちがう"]],def:"same"},
   {id:"jump",name:"ジャンプの 大きさ",opts:[["big","大ジャンプ"],["mid","ふつうジャンプ"],["small","小ジャンプ"]],def:"mid"},
-  {id:"pos",name:"とぶ ばしょ（なわの どこを とぶか）",opts:[["3","左"],["3.5","やや左"],["4","まん中"],["4.5","やや右"],["5","右"]],def:"4"},
+  {id:"pos",name:"とぶ ばしょ（なわの どこを とぶか）",opts:[["2.25","左"],["3.1","やや左"],["4","まん中"],["4.9","やや右"],["5.75","右"]],def:"4"},
   {id:"dist",name:"とぶ きょり（ふみきり〜ちゃくち）",opts:[["0.3","30cm"],["0.6","60cm"],["0.9","90cm"],["1.2","120cm"]],def:"0.6"},
   {id:"gap",name:"ならぶ 間かく",opts:[["0.4","40cm"],["0.6","60cm"],["0.9","90cm"]],def:"0.6"},
   {id:"angle",name:"入る 角度（なわに たいして）",opts:[["90","90°"],["75","75°"],["60","60°"],["45","45°"],["30","30°"]],def:"60"},
@@ -311,7 +311,7 @@ function hands(){ return st.height==="same"?[0.9,0.9]:[0.7,1.15]; }
 var SC=0.8;                                               // ピクトグラムの 大きさ（せの高さ 約1m）
 function headTop(kind){ var P=PICS[picName(kind)]; return (P.bot-P.top)*PSC/58; }
 var LIFT={big:0.6,mid:0.4,small:0.2};                  // ジャンプで 足が あがる 高さ（m）
-function ropeAt(x){ var h=hands(), s=(x-HL)/(HR-HL), ax=h[0]+(h[1]-h[0])*s, r=(+st.radius)*4*s*(1-s);
+function ropeAt(x){ var h=hands(), s=(x-HL)/(HR-HL), ax=h[0]+(h[1]-h[0])*s, r=(+st.radius)*Math.sin(Math.PI*Math.max(0,Math.min(1,s)));   // 回る なわの 形（はしは 小さく 回る）
   return {ax:ax,r:r,low:Math.max(0,ax-r),top:ax+r}; }
 function ropeShape(){
   var h=hands(), best=1e9, bs=0.5;
