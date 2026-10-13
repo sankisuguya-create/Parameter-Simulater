@@ -15,7 +15,7 @@
  */
 
 var TITLE = '八の字とびの しくみ';
-var BUILD = '2026-10-13c';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
+var BUILD = '2026-10-13d';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
 var STAFF_DOMAIN = 'edu.nishi.or.jp';
 var STUDENT_LOCAL = /^[0-9]{8}$/;
 var DEFAULT_SHOWN = ['bpm'];                // はじめに 児童に 出す 変数
@@ -89,7 +89,7 @@ function diag_(email, key) {
     ['差しこみ口 /*BOOT*/', mark('/*BOOT*/null/*BOOT*/')],
     ['選択肢ごとの スイッチ', mark('data-pubopt')],
     ['先生用の画面へ リンク', mark('id="toSensei"')],
-    ['開いた人の アドレス', email ? '取れた（' + (isStaffEmail_(email) ? '先生' : '先生ではない') + '）' : '★取れない（公開範囲が「全員」など。合言葉つき URL を 使う）'],
+    ['開いた人の アドレス', email ? '取れた（' + (isStaffEmail_(email) ? '学校の 先生' : isDeployer_(email) ? 'この GAS を 置いた 本人＝先生' : '先生ではない') + '）' : '★取れない（公開範囲が「全員」など。合言葉つき URL を 使う）'],
     ['合言葉', PropertiesService.getScriptProperties().getProperty('teacherKey') ? '設定ずみ' + (key ? (keyOk_(key) ? '（この URL の 合言葉は 正しい）' : '（この URL の 合言葉は ちがう）') : '') : '★まだ（エディタで teacherUrl を 実行）'],
     ['児童に 出している もの', getShown_().join(', ') || '（なし）'],
     ['この デプロイの URL', ScriptApp.getService().getUrl() || '★取れない']
@@ -101,7 +101,14 @@ function diag_(email, key) {
 }
 
 /* ===== 先生の 判定 ===== */
-function isTeacher_(key) { return isStaffEmail_(currentEmail_()) || keyOk_(key); }
+/* 先生＝ 1. 学校の 先生の アドレス／2. 合言葉／3. この GAS を 置いた 本人（school-timetable の Gate と 同じ。
+   置いた 人は エディタで 何でも 直せるので、ここで 閉め出す 意味が ない。個人の gmail で 置いた ときも 入れる） */
+function isTeacher_(key) { var e = currentEmail_(); return isStaffEmail_(e) || keyOk_(key) || isDeployer_(e); }
+function isDeployer_(email) {
+  var me = String(email || '').trim().toLowerCase(), dep = '';
+  try { dep = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase(); } catch (x) {}
+  return !!me && me === dep;
+}
 function isStaffEmail_(raw) {
   var e = String(raw || '').trim().toLowerCase();
   var at = e.lastIndexOf('@');

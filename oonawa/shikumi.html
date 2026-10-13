@@ -205,7 +205,7 @@ var $=function(id){return document.getElementById(id);};
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
 var BOOT=/*BOOT*/null/*BOOT*/;
-var PAGE_BUILD="2026-10-13c";   // Code.gs の BUILD と そろえる
+var PAGE_BUILD="2026-10-13d";   // Code.gs の BUILD と そろえる
 var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。
