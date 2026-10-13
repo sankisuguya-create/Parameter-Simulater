@@ -353,8 +353,8 @@ var TJ=0.35;                               // 空中に いる じかん（び�
 var GC=null, GCkey="";
 /* 列が 輪に 入りきらない ときは、その輪を C を中心に 大きくする（とぶ むきは かわらない） */
 function curve(){
-  var key=[st.pos,st.angle,st.dist,st.gap].join(); if(key===GCkey) return GC; GCkey=key;
-  var need=(+st.dist)+1.6+(N-1)*(+st.gap), c1=buildCurve(1,1);
+  var key=[st.pos,st.angle,st.dist,st.gap,st.radius,st.height].join(); if(key===GCkey) return GC; GCkey=key;
+  var need=(+st.dist)+1.0+headBack()+(N-1)*(+st.gap), c1=buildCurve(1,1);
   var lenR=c1.sC2, lenL=c1.total-c1.sC2;
   GC=buildCurve(Math.max(1,need/lenR*1.04),Math.max(1,need/lenL*1.04)); return GC;
 }
@@ -382,7 +382,9 @@ function posS(s){ var c=curve(), T=c.total; s=((s%T)+T)%T; var lo=0,hi=c.cum.len
 function takeS(side){ var c=curve(), D=+st.dist; return side==="R"?c.sC2-D/2:c.total-D/2; }
 function landS(side){ var c=curve(), D=+st.dist; return side==="R"?c.sC2+D/2:D/2; }
 function gapEff(){ return +st.gap; }
-function slotS(side,q){ return takeS(side)-0.6-q*gapEff(); }
+/* 列の 先頭が 待つ ばしょ：横に ふれる なわ（半けい r）より 45cm 外。ふみきりまでの 助走は その きょり */
+function headBack(){ var a=(+st.angle)*Math.PI/180, r=ropeAt(jumpX()).r; return Math.max(0.6,(r+0.45)/Math.sin(a)-(+st.dist)/2); }
+function slotS(side,q){ return takeS(side)-headBack()-q*gapEff(); }
 function slot(side,q){ return posS(slotS(side,q)); }
 function geom(){
   var c=curve(), jx=jumpX();
@@ -436,7 +438,7 @@ function personAt(j,T,p,g){
   var evs=plan.ev[j], go=null, i;
   for(i=0;i<evs.length;i++){ var e=evs[i]; if(e.type==="go"&&T>=e.t0&&T<e.ta){ go=e; break; } }
   if(go){ var gs=g[go.side];
-    if(T<go.tc-TJ/2){ var sh=slotS(go.side,0); return {xy:posS(sh+0.6*smooth((T-go.t0)/(go.tc-TJ/2-go.t0))),air:0}; }
+    if(T<go.tc-TJ/2){ var sh=slotS(go.side,0); return {xy:posS(sh+headBack()*smooth((T-go.t0)/(go.tc-TJ/2-go.t0))),air:0}; }
     if(T<go.tl){ var f=(T-(go.tc-TJ/2))/TJ; return {xy:lerp(gs.take,gs.land,f),air:Math.sin(Math.PI*f)}; }
     return {xy:posS(go.s0+go.len*(T-go.te)/(go.ta-go.te)),air:0};
   }
@@ -494,7 +496,7 @@ function draw(){
   // 声かけ：次の人が 入る 直前（列の 先頭の そば）
   if(!tk.stopped && nextJ && st.vfreq!=="none"){ var kk=Math.round(nextJ.tc/p), lead=nextJ.tc-T;
     if(lead<=appr()*p+TJ/2 && lead>0.2*p && (st.vfreq==="each"||kk%2===0)){ var hd=slot(nextJ.side,0);
-      out+=bubble(hd[0]-0.6,Math.max(hd[1],Y0)+1.6,st.vkind==="go"?"はい！":"そーれ"); } }
+      out+=bubble(hd[0]+0.35,Math.min(hd[1]+0.35,F1+FH-0.4),st.vkind==="go"?"はい！":"そーれ"); } }
   out+=kids;
   if(tk.stopped){
     out+='<rect x="'+n(F0)+'" y="'+n(F1-0.7)+'" width="'+n(3.8)+'" height="'+n(0.6)+'" rx="6" fill="var(--sheet)" stroke="var(--mark)" stroke-width="2"/>';
