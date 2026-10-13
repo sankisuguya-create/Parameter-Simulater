@@ -47,6 +47,16 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .lever .name{font-weight:700}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 0;min-width:5em}
+.sidecol{display:grid;gap:20px;min-width:0}
+@media (min-width:861px){
+  body:not(.present){height:100vh;overflow:hidden}
+  body:not(.present) .wrap{height:100vh;display:flex;flex-direction:column;gap:12px;padding-block:12px}
+  body:not(.present) .main{flex:1;min-height:0;align-items:stretch}
+  body:not(.present) .stage{display:flex;flex-direction:column;min-height:0;overflow-y:auto}
+  body:not(.present) .stage .vw:not([hidden]){flex:1 1 auto;min-height:160px;display:flex;flex-direction:column}
+  body:not(.present) .vw svg,body:not(.present) .vw canvas{flex:1 1 0;min-height:0;height:100%;width:100%;object-fit:contain}
+  body:not(.present) .sidecol{min-height:0;overflow-y:auto;overscroll-behavior:contain;align-content:start;padding-right:4px}
+}
 .lower{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
 @media (max-width:860px){ .lower{grid-template-columns:1fr} }
 .yoso{display:grid;gap:12px}
@@ -81,10 +91,11 @@ body.present .play,body.present .calc,body.present .note,body.present .stage>h2{
 body.present .wrap{max-width:none;padding-block:12px}
 body.present .main{grid-template-columns:1fr}
 body.present .stage{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px 24px;align-items:center;border:0;background:var(--paper)}
-body.present #top{grid-column:1;grid-row:1 / 3;max-height:calc(100vh - 40px)}
-body.present #side{grid-column:2;grid-row:1}
-body.present .result{grid-column:2;grid-row:2;align-self:start;justify-content:center;font-size:1.5em}
-@media (max-width:860px){ body.present .stage{grid-template-columns:1fr} body.present #top,body.present #side,body.present .result{grid-column:1;grid-row:auto} }
+body.present .vw{grid-column:1;grid-row:1 / 3}
+body.present .vw svg,body.present .vw canvas{max-height:calc(100vh - 40px);width:100%}
+body.present .obrow,body.present #viewTabs{display:none}
+body.present .result{grid-column:2;grid-row:1;align-self:center;justify-content:center;font-size:1.5em}
+@media (max-width:860px){ body.present .stage{grid-template-columns:1fr} body.present .vw,body.present .result{grid-column:1;grid-row:auto} }
 .fsBtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:5}
 #monUrl{width:100%;margin-top:4px;font:inherit;font-size:.85em;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
 .navlink{align-self:center;font-size:.85em;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:6px 4px;white-space:nowrap}
@@ -107,6 +118,10 @@ header .tools{flex-wrap:wrap;align-items:center}
 #trial-bar b.on{background:var(--accent);color:#fff}
 #trial-bar b.off{background:var(--sheet);border:1px dashed var(--ink)}
 #trial-bar #saveMsg{font-weight:700}
+#oblique{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper)}
+.obrow{display:flex;align-items:center;gap:10px;font-size:.9em;color:var(--ink-soft)}
+.obrow input{flex:1;min-width:0;accent-color:var(--accent);height:36px}
+.viewtabs{margin-bottom:10px}
 .grp{border:1px solid var(--rule);border-radius:10px;margin-top:8px;background:var(--paper)}
 .grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;font-weight:700}
 .grp>summary::-webkit-details-marker{display:none}
@@ -149,10 +164,11 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
 
   <div class="main">
     <section class="panel stage" aria-label="うごきの図">
-      <h2>上から見る</h2>
-      <svg id="top" viewBox="0 0 400 290" role="img" aria-label="上から見た八の字とびのうごき"></svg>
-      <h2 style="margin-top:12px">横から見る（なわの高さ）</h2>
-      <svg id="side" viewBox="0 0 400 165" role="img" aria-label="横から見たなわの高さ"></svg>
+      <div class="seg viewtabs" id="viewTabs" role="group" aria-label="見る 図"><button data-view="top">上から 見る</button><button data-view="side">横から 見る</button><button data-view="ob">斜めから 見る</button></div>
+      <div class="vw" data-view="top"><svg id="top" viewBox="0 0 400 290" role="img" aria-label="上から見た八の字とびのうごき"></svg></div>
+      <div class="vw" data-view="side"><svg id="side" viewBox="0 0 400 165" role="img" aria-label="横から見たなわの高さ"></svg></div>
+      <div class="vw" data-view="ob"><canvas id="oblique" width="800" height="420" role="img" aria-label="斜め上から見た なわの 回り方と とぶ 子"></canvas>
+      <div class="obrow"><label for="obYaw">見る むき</label><input type="range" id="obYaw" min="-60" max="60" step="1" value="-28"></div></div>
       <div class="play">
         <button id="playBtn" aria-label="さいせい・とめる">‖</button>
         <input type="range" id="scrub" min="0" max="180" step="0.05" value="0" aria-label="じかん">
@@ -172,6 +188,7 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <p class="note">赤い点線は 次の人の とぶ 道（●ふみきり → ○ちゃくち）。右の列が 全員 とんだら、左の列が とびはじめます。</p>
     </section>
 
+    <div class="sidecol">
     <section class="panel" aria-label="かえるところ">
       <div class="mode" id="modeBar" hidden></div>
       <h2 id="hNums">回数に はたらく もの</h2>
@@ -180,7 +197,6 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <div id="levers"></div>
       <p class="note">この まとまりの 変数は うごきだけを かえます。とんだ回数は 上の 4つだけで きまります。</p>
     </section>
-  </div>
 
   <div class="lower">
     <section class="panel" aria-label="はかった数">
@@ -193,6 +209,8 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <div class="bars" id="bars"></div>
       <p class="empty" id="empty">まだ 数が ありません。大なわを はかったら、ここに 入れます。入れると ぼうの長さで くらべられます。</p>
     </section>
+  </div>
+  </div>
   </div>
 </div>
 
@@ -289,7 +307,7 @@ var NUMS=[
   {id:"ssec",name:"止まっている じかん（1回）",unit:"びょう",min:1,max:20,step:1,def:5},
   {id:"rsec",name:"もとの はやさに もどるまで（1回）",unit:"びょう",min:0,max:15,step:1,def:4}
 ];
-var st={}; LEVERS.forEach(function(l){ st[l.id]=l.def; }); NUMS.forEach(function(x){ st[x.id]=x.def; });
+var st={view:"top"}; LEVERS.forEach(function(l){ st[l.id]=l.def; }); NUMS.forEach(function(x){ st[x.id]=x.def; });
 var saved=load("levers",null); if(saved) for(var k in saved) if(k in st && visible(k)) st[k]=saved[k];
 /* 児童画面：出していない 選択肢に なっていたら、出している ものに 直す（初期値を 優先） */
 if(MODE==="kodomo") LEVERS.forEach(function(l){ if(!leverShown(l.id)){ st[l.id]=l.def; return; }
@@ -517,9 +535,9 @@ function personAt(j,T,p,g){
   var evs=plan.ev[j], go=null, i;
   for(i=0;i<evs.length;i++){ var e=evs[i]; if(e.type==="go"&&T>=e.t0&&T<e.ta){ go=e; break; } }
   if(go){ var gs=g[go.side];
-    if(T<go.tc-TJ/2){ var sh=slotS(go.side,0); return {xy:posS(sh+headBack()*smooth((T-go.t0)/(go.tc-TJ/2-go.t0))),air:0}; }
-    if(T<go.tl){ var f=(T-(go.tc-TJ/2))/TJ; return {xy:lerp(gs.take,gs.land,f),air:Math.sin(Math.PI*f)}; }
-    return {xy:posS(go.s0+go.len*(T-go.te)/(go.ta-go.te)),air:0};
+    if(T<go.tc-TJ/2){ var sh=slotS(go.side,0); return {xy:posS(sh+headBack()*smooth((T-go.t0)/(go.tc-TJ/2-go.t0))),air:0,act:true}; }
+    if(T<go.tl){ var f=(T-(go.tc-TJ/2))/TJ; return {xy:lerp(gs.take,gs.land,f),air:Math.sin(Math.PI*f),act:true}; }
+    return {xy:posS(go.s0+go.len*(T-go.te)/(go.ta-go.te)),air:0,act:T<go.tl+0.35*p};
   }
   var xy=qPos("R",j,T,p)||qPos("L",j,T,p);
   return {xy:xy||slot("R",0),air:0};
@@ -582,7 +600,7 @@ function draw(){
   if(st.restart==="seeno" && tk.after!=null && tk.after<1.2*p) out+=bubble(jumpX()-0.6,F1+0.3,"せーの！");
   if(!tk.stopped && pl.skip[kNow] && nextJ){ var hw=slot(nextJ.side,0); out+=bubble(hw[0]-1.6,hw[1]+0.5,"まって…"); }
   if(tk.ramp){ out+='<text x="'+n(F0+1.9)+'" y="'+(n(F1-0.4)+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="var(--accent)">もとの はやさに もどり中</text>'; }
-  $("top").innerHTML=out;
+  showView(); if(st.view==="top") $("top").innerHTML=out;
 
   // 横から：x 1.5〜6.5m、高さ 0〜2.4m。人は 次に とぶ人を ピクトグラムで
   var G=150, sx=function(x){ return ((x-1.5)/5*360+20).toFixed(1); }, sy=function(hh){ return (G-hh*58).toFixed(1); };
@@ -605,13 +623,14 @@ function draw(){
       if(!tk.stopped && Math.abs(d0)<0.15*p && rj.low>lift) hit="足に ひっかかる！";
     }
   }
-  s2+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="var(--rope)" stroke-width="3" stroke-linecap="round"/>';
-  // ジャンプした ときの あたまの いちばん高い ところ
+  // ジャンプした ときの あたまの いちばん高い ところ（なわより 先に 描いて、なわを かくさない）
   var apex=headTop(st.jump)+lift;
   s2+='<line x1="'+(+sx(g.jx)-30)+'" y1="'+sy(apex)+'" x2="'+(+sx(g.jx)+30)+'" y2="'+sy(apex)+'" stroke="var(--ink-faint)" stroke-dasharray="3 3"/>';
   s2+='<text x="'+(g.jx>4.4?(+sx(g.jx)-34):(+sx(g.jx)+34))+'" text-anchor="'+(g.jx>4.4?"end":"start")+'" y="'+(+sy(apex)+4)+'" font-size="10" fill="var(--ink-soft)" stroke="var(--sheet)" stroke-width="3" paint-order="stroke">ジャンプした ときの あたま</text>';
+  s2+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="var(--rope)" stroke-width="3" stroke-linecap="round"/>';
   s2+='<text x="'+sx(g.jx)+'" y="20" text-anchor="middle" font-size="11" fill="var(--ink-soft)">とぶ ばしょ</text>';
-  $("side").innerHTML=s2;
+  if(st.view==="side") $("side").innerHTML=s2;
+  if(st.view==="ob") drawOblique(T,p,tk,g);
 
   $("scrub").value=t; var mm=Math.floor(t/60), ss=t-mm*60; $("time").textContent=mm+"分"+(ss<10?"0":"")+ss.toFixed(1)+"びょう";
   var tauEnd=tau(L).tau, all=0, now=0;
@@ -642,6 +661,73 @@ function bubble(x,y,txt){
 }
 
 /* ===== さいせい ===== */
+/* ===== 斜めから 見る（ローポリ 3D）。設定は 上の 2つの 図と 同じ もの（personAt・ropeAt・回し方）を 使う =====
+   世界：x＝なわの むき（上から見た図の x−4）、y＝おく（上から見た図の y−Y0）、z＝上。単位 m */
+var OB={cv:null,cx:null,imgs:{},key:"",yaw:-28};
+try{ var yv=localStorage.getItem(KEY+"yaw"); if(yv!=null) OB.yaw=+yv; }catch(e){}
+function obImgs(){
+  var kid=getComputedStyle(document.documentElement).getPropertyValue("--kid").trim()||"#2C5C9E", key=kid;
+  if(OB.key===key) return; OB.key=key; OB.imgs={};
+  Object.keys(PICS).forEach(function(k){ [["k",kid],["t","#7A7F86"]].forEach(function(c){
+    var im=new Image(); im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260">'+PICS[k].svg.split("var(--kid)").join(c[1]).split("var(--sheet)").join("#ffffff")+'</svg>');
+    OB.imgs[c[0]+k]=im; }); });
+}
+function thetaAt(T,p){ var uu=T/p; return 2*Math.PI*uu+(st.kankyu==="yes"?0.55*Math.sin(2*Math.PI*uu):0); }
+function drawOblique(T,p,tk,g){
+  if(!OB.cv){ OB.cv=$("oblique"); if(!OB.cv) return; OB.cx=OB.cv.getContext("2d"); }
+  if(!OB.colAt||Date.now()-OB.colAt>1000){ OB.colAt=Date.now(); OB.col={}; obImgs(); }   // 色は 1秒に 1回だけ 読みなおす（テーマの 切りかえ用）
+  var cv=OB.cv, cx=OB.cx, W=cv.width, H=cv.height, a=OB.yaw*Math.PI/180, ca=Math.cos(a), sa=Math.sin(a), pit=0.5;
+  var css=function(n){ if(!(n in OB.col)) OB.col[n]=getComputedStyle(document.documentElement).getPropertyValue(n).trim(); return OB.col[n]; };
+  var bx=g.c.box, X0=bx[0]-0.4-4, X1=bx[2]+0.4-4, Y0b=bx[1]-0.4-Y0, Y1b=bx[3]+0.4-Y0;
+  function raw(q){ var X=q[0]*ca-q[1]*sa, Yd=q[0]*sa+q[1]*ca; return [X, -q[2]*Math.cos(pit)+Yd*Math.sin(pit)*0.9, Yd]; }
+  // 床が 画面に 収まる 倍率
+  var cs=[[X0,Y0b,0],[X1,Y0b,0],[X1,Y1b,0],[X0,Y1b,0],[0,0,2.4]].map(raw);
+  var mnx=Math.min.apply(null,cs.map(function(c){return c[0];})), mxx=Math.max.apply(null,cs.map(function(c){return c[0];}));
+  var mny=Math.min.apply(null,cs.map(function(c){return c[1];})), mxy=Math.max.apply(null,cs.map(function(c){return c[1];}));
+  var Sc=Math.min((W-40)/(mxx-mnx),(H-30)/(mxy-mny)), ox=W/2-(mnx+mxx)/2*Sc, oy=H/2-(mny+mxy)/2*Sc;
+  function P3(q){ var r=raw(q); return [ox+r[0]*Sc, oy+r[1]*Sc, r[2]]; }
+  // 床（ローポリの タイル）は むき・大きさ・色が 変わった ときだけ 描きなおし、ふだんは 1枚の 絵として はる
+  var fkey=[OB.yaw,bx.join(),W,H,css("--floor"),css("--rule")].join("|");
+  if(OB.fkey!==fkey){ OB.fkey=fkey; if(!OB.floor) OB.floor=document.createElement("canvas"); OB.floor.width=W; OB.floor.height=H;
+    var fx=OB.floor.getContext("2d"), fl=css("--floor"), fll=css("--rule"); fx.clearRect(0,0,W,H);
+    for(var gx=Math.floor(X0);gx<X1;gx++) for(var gy=Math.floor(Y0b);gy<Y1b;gy++){
+      var q=[[gx,gy,0],[Math.min(gx+1,X1),gy,0],[Math.min(gx+1,X1),Math.min(gy+1,Y1b),0],[gx,Math.min(gy+1,Y1b),0]].map(function(v){ return [Math.max(v[0],X0),Math.max(v[1],Y0b),0]; }).map(P3);
+      fx.beginPath(); q.forEach(function(s,i){ if(i) fx.lineTo(s[0],s[1]); else fx.moveTo(s[0],s[1]); }); fx.closePath(); fx.fillStyle=fl; fx.fill(); fx.strokeStyle=fll; fx.lineWidth=1; fx.stroke(); } }
+  cx.clearRect(0,0,W,H); cx.drawImage(OB.floor,0,0);
+  // なわ：回し手の 手の あいだを、上から見た図・横から見た図と 同じ 形で
+  var SEG=14, lifted=tk.stopped&&st.help==="yes";
+  function ropePts(th){ var pts=[]; for(var i=0;i<=SEG;i++){ var x=HL+(HR-HL)*i/SEG, q=ropeAt(x); pts.push([x-4, q.r*Math.sin(th), Math.max(0,q.ax-q.r*Math.cos(th))]); } return pts; }
+  function drawRope(th,alpha,thick){ var pts=ropePts(th).map(P3), rc=css("--rope");
+    for(var i=0;i<SEG;i++){ var A=pts[i],B=pts[i+1], nx=-(B[1]-A[1]), ny=B[0]-A[0], L=Math.hypot(nx,ny)||1, w=thick/2; nx*=w/L; ny*=w/L;
+      cx.beginPath(); cx.moveTo(A[0]+nx,A[1]+ny); cx.lineTo(B[0]+nx,B[1]+ny); cx.lineTo(B[0]-nx,B[1]-ny); cx.lineTo(A[0]-nx,A[1]-ny); cx.closePath();
+      cx.globalAlpha=alpha*(i%2?1:0.78); cx.fillStyle=rc; cx.fill(); cx.globalAlpha=1; } }
+  var th=lifted?Math.PI:thetaAt(T,p);
+  if(!tk.stopped) for(var gh=2;gh>=1;gh--) drawRope(thetaAt(T-gh*0.06,p),0.16+0.1*(2-gh),Sc*0.04);
+  // 人：2D ピクトグラム。画面の 上で 進む むきに 合わせて 左右を 反転
+  function bill(key,q,flip){ var s=P3(q), im=OB.imgs[key], P0=PICS[key.slice(1)]; if(!im||!im.complete) return;
+    var px=1.06*Sc*Math.cos(pit)/(PICS.small_both.bot-PICS.small_both.top);
+    cx.save(); cx.translate(s[0],s[1]); if(flip) cx.scale(-1,1); cx.drawImage(im,-P0.cx*px,-P0.bot*px,240*px,260*px); cx.restore(); }
+  var items=[], lift=LIFT[st.jump], pk=picName(st.jump), kidc=css("--kid");
+  for(var j=0;j<N;j++){
+    var a0=personAt(j,T,p,g), a1=personAt(j,T+0.08,p,g), w0=[a0.xy[0]-4,a0.xy[1]-Y0,a0.air*lift], w1=[a1.xy[0]-4,a1.xy[1]-Y0,0];
+    var s0=P3(w0), s1=P3(w1), flip=(s1[0]-s0[0])<-0.3;
+    // 自分の 番（先頭から 出て とび、着地する まで）だけ ピクトグラム。ほかは 青い 丸
+    items.push({d:s0[2],fn:(function(w,f,act,s){ return function(){ if(act) bill("k"+pk,w,f); else { cx.beginPath(); cx.ellipse(s[0],s[1]-Sc*0.05,Sc*0.13,Sc*0.13*0.75,0,0,7); cx.fillStyle=kidc; cx.fill(); } }; })(w0,flip,a0.act,s0)}); }
+  var mid=ropePts(th)[SEG/2]; items.push({d:P3(mid)[2],fn:function(){ drawRope(th,1,Sc*0.07); }});
+  var hd=hands();
+  items.push({d:P3([HL-0.3-4,0,0])[2]-0.01,fn:function(){ bill("tsmall_both",[HL-0.3-4,0,0],false); }});
+  items.push({d:P3([HR+0.3-4,0,0])[2]-0.01,fn:function(){ bill("tsmall_both",[HR+0.3-4,0,0],true); }});
+  items.sort(function(x,y){ return x.d-y.d; }).forEach(function(it){ it.fn(); });
+  [[HL-4,0,hd[0]],[HR-4,0,hd[1]]].forEach(function(q){ var s=P3(q); cx.beginPath(); cx.arc(s[0],s[1],Math.max(3,Sc*0.05),0,7); cx.fillStyle=css("--turner"); cx.fill(); });
+}
+$("obYaw").value=OB.yaw;
+$("obYaw").addEventListener("input",function(){ OB.yaw=+this.value; try{ localStorage.setItem(KEY+"yaw",OB.yaw); }catch(e){} draw(); });
+/* 図は 1つずつ（処理を 軽く する）。選んだ 図は 保存し、モニターにも 送る */
+var shownView="";
+function showView(){ if(shownView===st.view) return; shownView=st.view;
+  Array.prototype.forEach.call(document.querySelectorAll(".vw"),function(v){ v.hidden=v.dataset.view!==st.view; });
+  Array.prototype.forEach.call(document.querySelectorAll("#viewTabs button"),function(b){ b.setAttribute("aria-pressed",b.dataset.view===st.view); }); }
+$("viewTabs").addEventListener("click",function(e){ var b=e.target.closest("button[data-view]"); if(!b) return; st.view=b.dataset.view; save("levers",st); draw(); });
 var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(reduce){ playing=false; }
 function setPlay(v){ playing=v; $("playBtn").textContent=v?"‖":"▶"; last=null; }
@@ -650,8 +736,10 @@ $("playBtn").onclick=function(){ setPlay(!playing); };
 $("scrub").oninput=function(){ t=+this.value; draw(); };
 $("rate").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; rate=+b.dataset.v;
   Array.prototype.forEach.call(this.children,function(c){ c.setAttribute("aria-pressed",c===b); }); };
+/* 描くのは 1秒に 30回まで（動きの 見え方は ほぼ 同じで、処理は 半分） */
+var lastDraw=0;
 function frame(ts){
-  if(playing){ if(last!==null){ t+=(ts-last)/1000*rate; if(t>=L) t-=L; } last=ts; draw(); }
+  if(playing){ if(last!==null){ t+=(ts-last)/1000*rate; if(t>=L) t-=L; } last=ts; if(ts-lastDraw>=32){ lastDraw=ts; draw(); } }
   requestAnimationFrame(frame);
 }
 draw(); requestAnimationFrame(frame);
