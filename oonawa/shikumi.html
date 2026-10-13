@@ -10,16 +10,16 @@
   --font-mono:"Consolas","Menlo","Roboto Mono","BIZ UDGothic","Noto Sans Mono CJK JP",monospace;
   --paper:#FCFBF7; --sheet:#FFFFFF; --ink:#1D2126;
   --ink-soft:#5A6470; --ink-faint:#9AA3AD;
-  --rule:#DFDCD2; --rule-soft:#EDEAE2; --accent:#2C5C9E;
+  --rule:#DFDCD2; --rule-soft:#EDEAE2; --accent:#2C5C9E; --blue:#2C5C9E; --act:#B35400;
   --floor:#F3EBDA; --rope:#7A3B12; --mark:#C2410C; --kid:#2C5C9E; --kid-ink:#FFFFFF; --turner:#5A6470;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --paper:#131619; --sheet:#1A1E23; --ink:#E8EBEF; --ink-soft:#A0A9B4; --ink-faint:#6A727C;
-  --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4;
+  --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4; --blue:#7BAAE4; --act:#F2A33A;
   --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; --band:#3A2E1A; --band-line:#B07A45; color-scheme:dark } }
 :root[data-theme="dark"]{
   --paper:#131619; --sheet:#1A1E23; --ink:#E8EBEF; --ink-soft:#A0A9B4; --ink-faint:#6A727C;
-  --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4;
+  --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4; --blue:#7BAAE4; --act:#F2A33A;
   --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; --band:#3A2E1A; --band-line:#B07A45; color-scheme:dark }
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-ja);font-size:16px;line-height:1.6;margin:0}
@@ -47,6 +47,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .lever .name{font-weight:700}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 0;min-width:5em}
+section[aria-label="かえるところ"]{--accent:var(--act)}
+section[aria-label="かえるところ"] .gate-chip{--accent:var(--blue)}
 .sidecol{display:grid;gap:20px;min-width:0}
 @media (min-width:861px){
   body:not(.present){height:100vh;overflow:hidden}
