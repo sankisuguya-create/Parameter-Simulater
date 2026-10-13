@@ -221,11 +221,12 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
 (function(){
 "use strict";
 var $=function(id){return document.getElementById(id);};
-/* GAS（Code.gs）が 下の null を {mode, shown, denied} に 置きかえる。
+/* GAS（Code.gs）が ページの 先頭に window.OONAWA_BOOT={mode, shown, denied…} を 足す。
+   （コメントの 印は GAS が 消すので 使わない） 
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
-var BOOT=/*BOOT*/null/*BOOT*/;
-var PAGE_BUILD="2026-10-13d";   // Code.gs の BUILD と そろえる
+var BOOT=window.OONAWA_BOOT||null;
+var PAGE_BUILD="2026-10-13e";   // Code.gs の BUILD と そろえる
 var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。

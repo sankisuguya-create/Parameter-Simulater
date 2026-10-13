@@ -15,7 +15,7 @@
  */
 
 var TITLE = '八の字とびの しくみ';
-var BUILD = '2026-10-13d';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
+var BUILD = '2026-10-13e';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
 var STAFF_DOMAIN = 'edu.nishi.or.jp';
 var STUDENT_LOCAL = /^[0-9]{8}$/;
 var DEFAULT_SHOWN = ['bpm'];                // はじめに 児童に 出す 変数
@@ -37,7 +37,8 @@ function doGet(e) {
                denied: wantSensei && !isT, emailOk: !!email, teacher: isT, key: (isT && keyOk_(key)) ? key : '', url: ScriptApp.getService().getUrl() || '' };
   var html = HtmlService.createHtmlOutputFromFile('shikumi').getContent();
   var json = JSON.stringify(boot).replace(/</g, '\\u003c');
-  html = html.split('/*BOOT*/null/*BOOT*/').join(json);   // replace は $ を 特別あつかい するので 使わない
+  // コメントの 印は getContent() で 消えるので、先頭に script を 足して わたす
+  html = '<script>window.OONAWA_BOOT=' + json + ';</script>' + html;
   return HtmlService.createHtmlOutput(html)
     .setTitle(boot.mode === 'sensei' ? TITLE + '（先生）' : boot.mode === 'monitor' ? TITLE + '（モニター）' : TITLE)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -86,7 +87,7 @@ function diag_(email, key) {
     ['shikumi.html の 版', m ? m[1] : '★見つからない（古いか、貼り付けが 欠けている）'],
     ['HTMLファイル「shikumi」', err ? '★読めない：' + err : '読めた（' + html.length + ' 文字）'],
     ['HTMLの 最後まで ある', /<\/script>\s*$/.test(html) ? 'ある' : '★ない（貼り付けが 途中で 切れている）'],
-    ['差しこみ口 /*BOOT*/', mark('/*BOOT*/null/*BOOT*/')],
+    ['BOOT の 受け口', mark('window.OONAWA_BOOT')],
     ['選択肢ごとの スイッチ', mark('data-pubopt')],
     ['先生用の画面へ リンク', mark('id="toSensei"')],
     ['開いた人の アドレス', email ? '取れた（' + (isStaffEmail_(email) ? '学校の 先生' : isDeployer_(email) ? 'この GAS を 置いた 本人＝先生' : '先生ではない') + '）' : '★取れない（公開範囲が「全員」など。合言葉つき URL を 使う）'],
