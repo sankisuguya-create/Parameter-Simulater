@@ -5,7 +5,7 @@
    色と書体は assets/ui/base.css の中立トークンに合わせる */
 /* まとまりの 印の色（色覚シミュレーション 検査ずみ） */
 :root{
-  --g1:#0F5EA8; --g2:#C86A00; --g3:#6E4310; --g4:#7A7F86;
+  --g1:#0F5EA8; --g2:#C86A00; --g3:#6E4310; --g4:#7A7F86; --band:#FBE3B4; --band-line:#6E4310;
   --font-ja:"Hiragino Sans","Yu Gothic UI","BIZ UDPGothic","Noto Sans JP","Noto Sans CJK JP","Meiryo",sans-serif;
   --font-mono:"Consolas","Menlo","Roboto Mono","BIZ UDGothic","Noto Sans Mono CJK JP",monospace;
   --paper:#FCFBF7; --sheet:#FFFFFF; --ink:#1D2126;
@@ -16,11 +16,11 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --paper:#131619; --sheet:#1A1E23; --ink:#E8EBEF; --ink-soft:#A0A9B4; --ink-faint:#6A727C;
   --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4;
-  --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; color-scheme:dark } }
+  --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; --band:#3A2E1A; --band-line:#B07A45; color-scheme:dark } }
 :root[data-theme="dark"]{
   --paper:#131619; --sheet:#1A1E23; --ink:#E8EBEF; --ink-soft:#A0A9B4; --ink-faint:#6A727C;
   --rule:#2E343B; --rule-soft:#242A30; --accent:#7BAAE4;
-  --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; color-scheme:dark }
+  --floor:#2A2620; --rope:#E3A06B; --mark:#FB923C; --kid:#7BAAE4; --kid-ink:#131619; --turner:#A0A9B4; --g1:#6FA8E8; --g2:#F2A33A; --g3:#B07A45; --g4:#C4C9D0; --band:#3A2E1A; --band-line:#B07A45; color-scheme:dark }
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-ja);font-size:16px;line-height:1.6;margin:0}
 body.big{font-size:21px}
@@ -70,16 +70,7 @@ td input{min-width:4.5em}
 svg.ico{display:inline-block;width:1.25em;height:1.25em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.25em;margin-right:6px;color:var(--ink-soft)}
 .g-rope .ico{color:var(--g1)} .g-jump .ico{color:var(--g2)} .g-line .ico{color:var(--g3)} .g-voice .ico{color:var(--g4)} .num .ico{color:var(--accent)}
 .mode{background:var(--rule-soft);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font-size:.9em;margin-bottom:10px}
-/* 先生画面だけ：変数ごとの いちばん上に「児童画面」スイッチの 行（名前や 値の 行は そのまま） */
-.pub{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:4px 10px;border-radius:8px;font-size:.85em;font-weight:700;text-align:left;
-  background:var(--sheet);border:2px dashed var(--rule);color:var(--ink-soft)}
-.pub .trk{flex:none;position:relative;width:46px;height:26px;border-radius:13px;background:var(--rule);transition:background .15s}
-.pub .trk::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--sheet);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .15s}
-.pub[aria-checked="true"]{border:2px solid var(--accent);color:var(--accent);background:var(--rule-soft)}
-.pub[aria-checked="true"] .trk{background:var(--accent)}
-.pub[aria-checked="true"] .trk::after{left:23px}
-.pub .lbl2{flex:1}
-@media (prefers-reduced-motion:reduce){ .pub .trk,.pub .trk::after{transition:none} }
+
 .lever .name{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .num .top label{display:flex;align-items:center;gap:4px}
 .seg button{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.3}
@@ -98,16 +89,24 @@ body.present .result{grid-column:2;grid-row:2;align-self:start;justify-content:c
 #monUrl{width:100%;margin-top:4px;font:inherit;font-size:.85em;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
 .navlink{align-self:center;font-size:.85em;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:6px 4px;white-space:nowrap}
 header .tools{flex-wrap:wrap;align-items:center}
-.optc{flex:1 1 0;min-width:5em;display:flex;flex-direction:column;gap:4px}
-.optc>button[data-v]{width:100%;flex:1 1 auto}
-.optc>.pubo{flex:none;min-width:0}
-.pubo{display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:2px 6px;border-radius:8px;font-size:.78em;font-weight:700;
-  background:var(--sheet);border:2px dashed var(--rule);color:var(--ink-soft)}
-.pubo .trk{flex:none;position:relative;width:32px;height:18px;border-radius:9px;background:var(--rule)}
-.pubo .trk::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--sheet);box-shadow:0 1px 2px rgba(0,0,0,.3)}
-.pubo[aria-checked="true"]{border:2px solid var(--accent);color:var(--accent);background:var(--rule-soft)}
-.pubo[aria-checked="true"] .trk{background:var(--accent)}
-.pubo[aria-checked="true"] .trk::after{left:16px}
+
+/* ---- 児童画面に 出す／出さない（kanzi の おためし画面の チップと 同じ 形）
+   チップは ボタン（スライダーの まとまり）の 右上の 角に、付箋のように 半分 はみ出して 重ねる。並び・大きさは 児童画面と 同じ。
+   オン／オフは 色だけでなく 記号（✓／✕）・塗り（青い面／白地に 点線）・本体の うすさ で 見分ける */
+.chipHost{position:relative}
+.num.chipHost .top{padding-right:22px}
+.gate-chip{position:absolute;top:-9px;right:-9px;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+  font-size:17px;font-weight:700;line-height:1;border-radius:8px;border:2px solid #fff;background:var(--accent);color:#fff;
+  box-shadow:0 0 0 1px var(--ink),0 2px 4px rgba(0,0,0,.3);cursor:pointer}
+.gate-chip[aria-checked="false"]{background:var(--sheet);color:var(--ink);border:2px dashed var(--ink);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.gate-chip:focus-visible{outline:4px solid var(--g2);outline-offset:2px}
+.chipHost.dim::after{content:"";position:absolute;inset:-2px;border-radius:10px;background:var(--paper);opacity:.55;pointer-events:none;z-index:1}
+#trial-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:8px 14px;background:var(--band);border:2px solid var(--band-line);border-radius:10px;font-size:.95em}
+#trial-bar .tb-label{font-weight:700;margin-right:auto}
+#trial-bar b.on,#trial-bar b.off{display:inline-block;min-width:22px;text-align:center;border-radius:5px;margin:0 3px}
+#trial-bar b.on{background:var(--accent);color:#fff}
+#trial-bar b.off{background:var(--sheet);border:1px dashed var(--ink)}
+#trial-bar #saveMsg{font-weight:700}
 .grp{border:1px solid var(--rule);border-radius:10px;margin-top:8px;background:var(--paper)}
 .grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;font-weight:700}
 .grp>summary::-webkit-details-marker{display:none}
@@ -215,7 +214,7 @@ function optShown(id,v){ return !SHOWN||SHOWN.indexOf(id)>=0||SHOWN.indexOf(id+"
 function leverOf(id){ for(var i=0;i<LEVERS.length;i++) if(LEVERS[i].id===id) return LEVERS[i]; return null; }
 function leverShown(id){ var l=leverOf(id); return l.opts.some(function(o){ return optShown(id,o[0]); }); }
 function visible(id){ return MODE!=="kodomo"||(leverOf(id)?leverShown(id):isShown(id)); }
-function pubBtn(id){ return MODE==="sensei"?'<button class="pub" role="switch" data-pub="'+id+'" aria-checked="'+isShown(id)+'"></button>':""; }
+function pubBtn(id){ return MODE==="sensei"?'<span class="gate-chip" role="switch" tabindex="0" data-pub="'+id+'"></span>':""; }
 var KEY="oonawa.shikumi.";
 function load(k,d){ try{ var v=localStorage.getItem(KEY+k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function save(k,v){ if(typeof IS_MON!=="undefined"&&IS_MON) return; try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} }
@@ -314,7 +313,7 @@ var openG=load("open",{rope:true});
 function leverHtml(l){ var ops=l.opts.filter(function(o){ return MODE!=="kodomo"||optShown(l.id,o[0]); });
   return '<div class="lever" role="group" aria-label="'+l.name+'"><span class="name">'+ico(l.id)+l.name+'</span><div class="seg" data-l="'+l.id+'">'+
     ops.map(function(o){ var bt='<button data-v="'+o[0]+'">'+optIcon(l.id,o[0]).replace('class="ico"','class="ico opt"')+'<span>'+o[1]+'</span></button>';
-      return MODE==="sensei"?'<div class="optc">'+bt+'<button class="pubo" role="switch" data-pubopt="'+l.id+':'+o[0]+'" aria-label="'+o[1]+'を 児童画面に 出す"></button></div>':bt; }).join("")+'</div></div>'; }
+      return MODE==="sensei"?bt.replace('<button data-v=','<button class="chipHost" data-host="'+l.id+':'+o[0]+'" data-v=').replace(/<\/button>$/,'<span class="gate-chip" role="switch" tabindex="0" data-pubopt="'+l.id+':'+o[0]+'"></span></button>'):bt; }).join("")+'</div></div>'; }
 $("levers").innerHTML=GROUPS.map(function(g){
   var ids=g.ids.filter(visible); if(!ids.length) return "";
   var cnt=MODE==="sensei"?'<span class="cnt" data-cnt="'+g.id+'"></span>':'<span class="cnt">'+ids.length+'こ</span>';
@@ -323,15 +322,21 @@ $("levers").innerHTML=GROUPS.map(function(g){
 }).join("");
 /* 教師画面：児童に 出す・出さない（保存は Code.gs の saveShown） */
 if(MODE==="kodomo"){ if(!$("nums").children.length) $("hNums").hidden=true; if(!$("levers").children.length) $("hLev").hidden=true; }
+function paintChip(c,on,label){ c.setAttribute("aria-checked",String(on)); c.textContent=on?"✓":"✕";
+  c.setAttribute("aria-label",label+"を 児童画面に 出す"); c.title=on?"オン（児童画面に 出る）。押すと オフ":"オフ（児童画面に 出ない）。押すと オン";
+  var h=c.closest(".chipHost"); if(h) h.classList.toggle("dim",!on); }
 function paintPub(){
-  Array.prototype.forEach.call(document.querySelectorAll("[data-pub]"),function(b){ var on=isShown(b.dataset.pub); b.setAttribute("aria-checked",on); b.innerHTML='<span class="trk" aria-hidden="true"></span><span class="lbl2">'+(on?"児童画面に 出す":"児童画面に 出さない")+'</span>'+svgI(on?'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/>':'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><path d="M4 4l16 16"/>'); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pub]"),function(c){ var x=NUMS.filter(function(y){return y.id===c.dataset.pub;})[0]; paintChip(c,isShown(c.dataset.pub),x?x.name:""); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pubopt]"),function(c){ var kv=c.dataset.pubopt.split(":"), l=leverOf(kv[0]), o=l.opts.filter(function(z){return z[0]===kv[1];})[0];
+    paintChip(c,optShown(kv[0],kv[1]),l.name+"の "+(o?o[1]:kv[1])); });
   GROUPS.forEach(function(g){ var c=document.querySelector('[data-cnt="'+g.id+'"]'); if(c) c.textContent="児童に "+g.ids.filter(leverShown).length+"／"+g.ids.length; });
-  Array.prototype.forEach.call(document.querySelectorAll("[data-pubopt]"),function(b){ var kv=b.dataset.pubopt.split(":"), on=optShown(kv[0],kv[1]);
-    b.setAttribute("aria-checked",on); b.innerHTML='<span class="trk" aria-hidden="true"></span>'+(on?"出す":"出さない"); });
-  $("modeInfo").textContent="児童画面には、スイッチが 青の ものだけが 出ます。児童が ページを 開き直すと 反映されます。";
 }
 if(MODE==="sensei"){
-  $("modeBar").hidden=false; $("modeBar").innerHTML='<b>先生用の 画面</b> <span id="modeInfo"></span><span id="saveMsg"></span>'; paintPub();
+  var tb=document.createElement("div"); tb.id="trial-bar";
+  tb.innerHTML='<span class="tb-label">先生用の 画面</span><span>右上の 印：<b class="on">✓</b>児童画面に 出す　<b class="off">✕</b>出さない（児童が 開き直すと 反映）</span><span id="saveMsg" aria-live="polite"></span>';
+  document.querySelector(".wrap").insertBefore(tb,document.querySelector(".main"));
+  paintPub();
+  document.addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("gate-chip")){ e.preventDefault(); e.target.click(); } },true);
   document.addEventListener("click",function(e){ var b=e.target.closest("[data-pub],[data-pubopt]"); if(!b) return; e.preventDefault(); e.stopPropagation();
     if(b.dataset.pub){ var id=b.dataset.pub, i=SHOWN.indexOf(id); if(i>=0) SHOWN.splice(i,1); else SHOWN.push(id); }
     else { var kv=b.dataset.pubopt.split(":"), lid=kv[0], key=b.dataset.pubopt, w=SHOWN.indexOf(lid);
@@ -363,7 +368,7 @@ function paintLevers(){
   });
 }
 $("nums").innerHTML=NUMS.filter(function(x){return visible(x.id);}).map(function(x){
-  return '<div class="num">'+pubBtn(x.id)+'<div class="top"><label for="n-'+x.id+'">'+ico(x.id)+'<b>'+x.name+'</b></label><span><span class="val" id="v-'+x.id+'"></span> '+x.unit+'</span></div>'+
+  return '<div class="num chipHost" data-host="'+x.id+'">'+pubBtn(x.id)+'<div class="top"><label for="n-'+x.id+'">'+ico(x.id)+'<b>'+x.name+'</b></label><span><span class="val" id="v-'+x.id+'"></span> '+x.unit+'</span></div>'+
     '<div class="row"><button data-d="-1" data-n="'+x.id+'" aria-label="へらす">−</button><input type="range" id="n-'+x.id+'" min="'+x.min+'" max="'+x.max+'" step="'+x.step+'"><button data-d="1" data-n="'+x.id+'" aria-label="ふやす">＋</button></div></div>';
 }).join("");
 if(MODE==="sensei") paintPub();
