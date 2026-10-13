@@ -535,9 +535,7 @@ function draw(){
   var apex=headTop(st.jump)+lift;
   s2+='<line x1="'+(+sx(g.jx)-30)+'" y1="'+sy(apex)+'" x2="'+(+sx(g.jx)+30)+'" y2="'+sy(apex)+'" stroke="var(--ink-faint)" stroke-dasharray="3 3"/>';
   s2+='<text x="'+(+sx(g.jx)+34)+'" y="'+(+sy(apex)+4)+'" font-size="10" fill="var(--ink-soft)" stroke="var(--sheet)" stroke-width="3" paint-order="stroke">ジャンプした ときの あたま</text>';
-  if(hit){ s2+='<rect x="'+(+sx(g.jx)-62)+'" y="4" width="124" height="22" rx="6" fill="var(--sheet)" stroke="var(--mark)" stroke-width="2"/>'+
-    '<text x="'+sx(g.jx)+'" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="var(--mark)">'+hit+'</text>'; }
-  else s2+='<text x="'+sx(g.jx)+'" y="20" text-anchor="middle" font-size="11" fill="var(--ink-soft)">とぶ ばしょ</text>';
+  s2+='<text x="'+sx(g.jx)+'" y="20" text-anchor="middle" font-size="11" fill="var(--ink-soft)">とぶ ばしょ</text>';
   $("side").innerHTML=s2;
 
   $("scrub").value=t; var mm=Math.floor(t/60), ss=t-mm*60; $("time").textContent=mm+"分"+(ss<10?"0":"")+ss.toFixed(1)+"びょう";
