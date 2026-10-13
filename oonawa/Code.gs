@@ -25,7 +25,7 @@ function doGet(e) {
   var isT = TEACHER_RE.test(email);
   var wantMon = !!(e && e.parameter && e.parameter.p === 'monitor');
   var boot = { mode: wantMon ? 'monitor' : ((wantSensei && isT) ? 'sensei' : 'kodomo'), shown: getShown_(),
-               denied: wantSensei && !isT, url: ScriptApp.getService().getUrl() || '' };
+               denied: wantSensei && !isT, teacher: isT, url: ScriptApp.getService().getUrl() || '' };
   var html = HtmlService.createHtmlOutputFromFile('shikumi').getContent();
   var json = JSON.stringify(boot).replace(/</g, '\\u003c');
   html = html.replace('/*BOOT*/null/*BOOT*/', json);

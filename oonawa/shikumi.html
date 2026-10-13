@@ -88,6 +88,8 @@ body.present .result{grid-column:2;grid-row:2;align-self:start;justify-content:c
 @media (max-width:860px){ body.present .stage{grid-template-columns:1fr} body.present #top,body.present #side,body.present .result{grid-column:1;grid-row:auto} }
 .fsBtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:5}
 #monUrl{width:100%;margin-top:4px;font:inherit;font-size:.85em;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
+.navlink{align-self:center;font-size:.85em;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:6px 4px;white-space:nowrap}
+header .tools{flex-wrap:wrap;align-items:center}
 .grp{border:1px solid var(--rule);border-radius:10px;margin-top:8px;background:var(--paper)}
 .grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;font-weight:700}
 .grp>summary::-webkit-details-marker{display:none}
@@ -118,6 +120,8 @@ body.present .result{grid-column:2;grid-row:2;align-self:start;justify-content:c
     <h1>八の字とびの しくみ</h1>
     <p class="sub">かえるところを えらぶと、うごきが かわります。</p>
     <div class="tools">
+      <a id="toSensei" class="navlink" target="_blank" rel="noopener" hidden>先生用の 画面へ →</a>
+      <a id="toKodomo" class="navlink" target="_blank" rel="noopener" hidden>児童画面を 見る →</a>
       <button id="showBtn" title="モニターに うつす（図と 回数だけの 画面を 開く）">うつす</button>
       <button id="bigBtn" aria-pressed="false" title="黒板で見せるとき">大きく</button>
     </div>
@@ -292,10 +296,19 @@ if(MODE==="sensei"){
     var id=b.dataset.pub, i=SHOWN.indexOf(id); if(i>=0) SHOWN.splice(i,1); else SHOWN.push(id); paintPub();
     $("saveMsg").textContent="　保存中…";
     if(window.google&&google.script&&google.script.run){
-      google.script.run.withSuccessHandler(function(){ $("saveMsg").textContent="　保存しました"; })
-        .withFailureHandler(function(err){ $("saveMsg").textContent="　保存できませんでした："+(err&&err.message||err); }).saveShown(SHOWN);
+      PENDING++;
+      google.script.run.withSuccessHandler(function(){ PENDING--; if(!PENDING) $("saveMsg").textContent="　保存しました"; })
+        .withFailureHandler(function(err){ PENDING--; $("saveMsg").textContent="　保存できませんでした："+(err&&err.message||err); }).saveShown(SHOWN.slice());
     } else $("saveMsg").textContent="　（GASの 外なので 保存されません）";
   },true);
+}
+/* 先生と 児童画面の 行き来（先生の アカウントの ときだけ） */
+var PENDING=0;
+if(BOOT&&BOOT.url&&BOOT.teacher){
+  if(MODE==="kodomo"){ $("toSensei").href=BOOT.url+"?p=sensei"; $("toSensei").hidden=false; }
+  if(MODE==="sensei"){ var tk2=$("toKodomo"); tk2.href=BOOT.url; tk2.hidden=false;
+    tk2.addEventListener("click",function(e){ if(!PENDING) return; e.preventDefault();      // 保存が 終わってから 開く
+      var w=window.open("about:blank","_blank"); var iv=setInterval(function(){ if(!PENDING){ clearInterval(iv); if(w) w.location.href=BOOT.url; else window.open(BOOT.url,"_blank"); } },150); }); }
 }
 if(BOOT&&BOOT.denied){ $("modeBar").hidden=false; $("modeBar").textContent="先生用の 画面は、先生の アカウント（@edu.nishi.or.jp）で 開いたときだけ 出ます。いまは 児童画面です。"; }
 Array.prototype.forEach.call(document.querySelectorAll("#levers details"),function(d){ d.addEventListener("toggle",function(){ openG[d.dataset.g]=d.open; save("open",openG); }); });
