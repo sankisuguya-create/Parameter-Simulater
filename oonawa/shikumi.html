@@ -81,10 +81,12 @@ body.present .play,body.present .calc,body.present .note,body.present .stage>h2{
 body.present .wrap{max-width:none;padding-block:12px}
 body.present .main{grid-template-columns:1fr}
 body.present .stage{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px 24px;align-items:center;border:0;background:var(--paper)}
-body.present #top{grid-column:1;grid-row:1 / 3;max-height:calc(100vh - 40px)}
+body.present #top{grid-column:1;grid-row:1 / 4;max-height:calc(100vh - 40px)}
 body.present #side{grid-column:2;grid-row:1}
-body.present .result{grid-column:2;grid-row:2;align-self:start;justify-content:center;font-size:1.5em}
-@media (max-width:860px){ body.present .stage{grid-template-columns:1fr} body.present #top,body.present #side,body.present .result{grid-column:1;grid-row:auto} }
+body.present #oblique{grid-column:2;grid-row:2}
+body.present .obrow{display:none}
+body.present .result{grid-column:2;grid-row:3;align-self:start;justify-content:center;font-size:1.5em}
+@media (max-width:860px){ body.present .stage{grid-template-columns:1fr} body.present #top,body.present #side,body.present #oblique,body.present .result{grid-column:1;grid-row:auto} }
 .fsBtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:5}
 #monUrl{width:100%;margin-top:4px;font:inherit;font-size:.85em;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
 .navlink{align-self:center;font-size:.85em;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:6px 4px;white-space:nowrap}
@@ -107,6 +109,9 @@ header .tools{flex-wrap:wrap;align-items:center}
 #trial-bar b.on{background:var(--accent);color:#fff}
 #trial-bar b.off{background:var(--sheet);border:1px dashed var(--ink)}
 #trial-bar #saveMsg{font-weight:700}
+#oblique{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper)}
+.obrow{display:flex;align-items:center;gap:10px;font-size:.9em;color:var(--ink-soft)}
+.obrow input{flex:1;min-width:0;accent-color:var(--accent);height:36px}
 .grp{border:1px solid var(--rule);border-radius:10px;margin-top:8px;background:var(--paper)}
 .grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;font-weight:700}
 .grp>summary::-webkit-details-marker{display:none}
@@ -153,6 +158,9 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <svg id="top" viewBox="0 0 400 290" role="img" aria-label="上から見た八の字とびのうごき"></svg>
       <h2 style="margin-top:12px">横から見る（なわの高さ）</h2>
       <svg id="side" viewBox="0 0 400 165" role="img" aria-label="横から見たなわの高さ"></svg>
+      <h2 style="margin-top:12px">斜めから見る</h2>
+      <canvas id="oblique" width="800" height="420" role="img" aria-label="斜め上から見た なわの 回り方と とぶ 子"></canvas>
+      <div class="obrow"><label for="obYaw">見る むき</label><input type="range" id="obYaw" min="-60" max="60" step="1" value="-28"></div>
       <div class="play">
         <button id="playBtn" aria-label="さいせい・とめる">‖</button>
         <input type="range" id="scrub" min="0" max="180" step="0.05" value="0" aria-label="じかん">
@@ -612,6 +620,7 @@ function draw(){
   s2+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="var(--rope)" stroke-width="3" stroke-linecap="round"/>';
   s2+='<text x="'+sx(g.jx)+'" y="20" text-anchor="middle" font-size="11" fill="var(--ink-soft)">とぶ ばしょ</text>';
   $("side").innerHTML=s2;
+  drawOblique(T,p,tk,g);
 
   $("scrub").value=t; var mm=Math.floor(t/60), ss=t-mm*60; $("time").textContent=mm+"分"+(ss<10?"0":"")+ss.toFixed(1)+"びょう";
   var tauEnd=tau(L).tau, all=0, now=0;
@@ -642,6 +651,64 @@ function bubble(x,y,txt){
 }
 
 /* ===== さいせい ===== */
+/* ===== 斜めから 見る（ローポリ 3D）。設定は 上の 2つの 図と 同じ もの（personAt・ropeAt・回し方）を 使う =====
+   世界：x＝なわの むき（上から見た図の x−4）、y＝おく（上から見た図の y−Y0）、z＝上。単位 m */
+var OB={cv:null,cx:null,imgs:{},key:"",yaw:-28};
+try{ var yv=localStorage.getItem(KEY+"yaw"); if(yv!=null) OB.yaw=+yv; }catch(e){}
+function obImgs(){
+  var kid=getComputedStyle(document.documentElement).getPropertyValue("--kid").trim()||"#2C5C9E", key=kid;
+  if(OB.key===key) return; OB.key=key; OB.imgs={};
+  Object.keys(PICS).forEach(function(k){ [["k",kid],["t","#7A7F86"]].forEach(function(c){
+    var im=new Image(); im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260">'+PICS[k].svg.split("var(--kid)").join(c[1]).split("var(--sheet)").join("#ffffff")+'</svg>');
+    OB.imgs[c[0]+k]=im; }); });
+}
+function thetaAt(T,p){ var uu=T/p; return 2*Math.PI*uu+(st.kankyu==="yes"?0.55*Math.sin(2*Math.PI*uu):0); }
+function drawOblique(T,p,tk,g){
+  if(!OB.cv){ OB.cv=$("oblique"); if(!OB.cv) return; OB.cx=OB.cv.getContext("2d"); }
+  obImgs();
+  var cv=OB.cv, cx=OB.cx, W=cv.width, H=cv.height, a=OB.yaw*Math.PI/180, ca=Math.cos(a), sa=Math.sin(a), pit=0.5;
+  var css=function(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var bx=g.c.box, X0=bx[0]-0.4-4, X1=bx[2]+0.4-4, Y0b=bx[1]-0.4-Y0, Y1b=bx[3]+0.4-Y0;
+  function raw(q){ var X=q[0]*ca-q[1]*sa, Yd=q[0]*sa+q[1]*ca; return [X, -q[2]*Math.cos(pit)+Yd*Math.sin(pit)*0.9, Yd]; }
+  // 床が 画面に 収まる 倍率
+  var cs=[[X0,Y0b,0],[X1,Y0b,0],[X1,Y1b,0],[X0,Y1b,0],[0,0,2.4]].map(raw);
+  var mnx=Math.min.apply(null,cs.map(function(c){return c[0];})), mxx=Math.max.apply(null,cs.map(function(c){return c[0];}));
+  var mny=Math.min.apply(null,cs.map(function(c){return c[1];})), mxy=Math.max.apply(null,cs.map(function(c){return c[1];}));
+  var Sc=Math.min((W-40)/(mxx-mnx),(H-30)/(mxy-mny)), ox=W/2-(mnx+mxx)/2*Sc, oy=H/2-(mny+mxy)/2*Sc;
+  function P3(q){ var r=raw(q); return [ox+r[0]*Sc, oy+r[1]*Sc, r[2]]; }
+  cx.clearRect(0,0,W,H);
+  // 床（ローポリの タイル）
+  var fl=css("--floor"), fll=css("--rule");
+  for(var gx=Math.floor(X0);gx<X1;gx++) for(var gy=Math.floor(Y0b);gy<Y1b;gy++){
+    var q=[[gx,gy,0],[Math.min(gx+1,X1),gy,0],[Math.min(gx+1,X1),Math.min(gy+1,Y1b),0],[gx,Math.min(gy+1,Y1b),0]].map(function(v){ return [Math.max(v[0],X0),Math.max(v[1],Y0b),0]; }).map(P3);
+    cx.beginPath(); q.forEach(function(s,i){ if(i) cx.lineTo(s[0],s[1]); else cx.moveTo(s[0],s[1]); }); cx.closePath(); cx.fillStyle=fl; cx.fill(); cx.strokeStyle=fll; cx.lineWidth=1; cx.stroke(); }
+  // なわ：回し手の 手の あいだを、上から見た図・横から見た図と 同じ 形で
+  var SEG=14, lifted=tk.stopped&&st.help==="yes";
+  function ropePts(th){ var pts=[]; for(var i=0;i<=SEG;i++){ var x=HL+(HR-HL)*i/SEG, q=ropeAt(x); pts.push([x-4, q.r*Math.sin(th), Math.max(0,q.ax-q.r*Math.cos(th))]); } return pts; }
+  function drawRope(th,alpha,thick){ var pts=ropePts(th).map(P3), rc=css("--rope");
+    for(var i=0;i<SEG;i++){ var A=pts[i],B=pts[i+1], nx=-(B[1]-A[1]), ny=B[0]-A[0], L=Math.hypot(nx,ny)||1, w=thick/2; nx*=w/L; ny*=w/L;
+      cx.beginPath(); cx.moveTo(A[0]+nx,A[1]+ny); cx.lineTo(B[0]+nx,B[1]+ny); cx.lineTo(B[0]-nx,B[1]-ny); cx.lineTo(A[0]-nx,A[1]-ny); cx.closePath();
+      cx.globalAlpha=alpha*(i%2?1:0.78); cx.fillStyle=rc; cx.fill(); cx.globalAlpha=1; } }
+  var th=lifted?Math.PI:thetaAt(T,p);
+  if(!tk.stopped) for(var gh=2;gh>=1;gh--) drawRope(thetaAt(T-gh*0.06,p),0.16+0.1*(2-gh),Sc*0.04);
+  // 人：2D ピクトグラム。画面の 上で 進む むきに 合わせて 左右を 反転
+  function bill(key,q,flip){ var s=P3(q), im=OB.imgs[key], P0=PICS[key.slice(1)]; if(!im||!im.complete) return;
+    var px=1.06*Sc*Math.cos(pit)/(PICS.small_both.bot-PICS.small_both.top);
+    cx.save(); cx.translate(s[0],s[1]); if(flip) cx.scale(-1,1); cx.drawImage(im,-P0.cx*px,-P0.bot*px,240*px,260*px); cx.restore(); }
+  var items=[], lift=LIFT[st.jump], pk=picName(st.jump);
+  for(var j=0;j<N;j++){
+    var a0=personAt(j,T,p,g), a1=personAt(j,T+0.08,p,g), w0=[a0.xy[0]-4,a0.xy[1]-Y0,a0.air*lift], w1=[a1.xy[0]-4,a1.xy[1]-Y0,0];
+    var s0=P3(w0), s1=P3(w1), flip=(s1[0]-s0[0])<-0.3;
+    items.push({d:s0[2],fn:(function(w,f){ return function(){ bill("k"+pk,w,f); }; })(w0,flip)}); }
+  var mid=ropePts(th)[SEG/2]; items.push({d:P3(mid)[2],fn:function(){ drawRope(th,1,Sc*0.07); }});
+  var hd=hands();
+  items.push({d:P3([HL-0.3-4,0,0])[2]-0.01,fn:function(){ bill("tsmall_both",[HL-0.3-4,0,0],false); }});
+  items.push({d:P3([HR+0.3-4,0,0])[2]-0.01,fn:function(){ bill("tsmall_both",[HR+0.3-4,0,0],true); }});
+  items.sort(function(x,y){ return x.d-y.d; }).forEach(function(it){ it.fn(); });
+  [[HL-4,0,hd[0]],[HR-4,0,hd[1]]].forEach(function(q){ var s=P3(q); cx.beginPath(); cx.arc(s[0],s[1],Math.max(3,Sc*0.05),0,7); cx.fillStyle=css("--turner"); cx.fill(); });
+}
+$("obYaw").value=OB.yaw;
+$("obYaw").addEventListener("input",function(){ OB.yaw=+this.value; try{ localStorage.setItem(KEY+"yaw",OB.yaw); }catch(e){} draw(); });
 var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(reduce){ playing=false; }
 function setPlay(v){ playing=v; $("playBtn").textContent=v?"‖":"▶"; last=null; }
