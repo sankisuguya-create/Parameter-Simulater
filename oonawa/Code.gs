@@ -15,7 +15,7 @@
  */
 
 var TITLE = '八の字とびの しくみ';
-var BUILD = '2026-10-13e';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
+var BUILD = '2026-10-13f';   // shikumi.html の PAGE_BUILD と そろえる。ちがえば 画面に 警告が 出る
 var STAFF_DOMAIN = 'edu.nishi.or.jp';
 var STUDENT_LOCAL = /^[0-9]{8}$/;
 var DEFAULT_SHOWN = ['bpm'];                // はじめに 児童に 出す 変数

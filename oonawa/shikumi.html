@@ -226,7 +226,7 @@ var $=function(id){return document.getElementById(id);};
    mode: "kodomo"＝児童画面（shown の 変数だけ 出す）／"sensei"＝教師画面（全部＋出す・出さない）。
    null（手元で 開いた とき）は 全部 出す */
 var BOOT=window.OONAWA_BOOT||null;
-var PAGE_BUILD="2026-10-13e";   // Code.gs の BUILD と そろえる
+var PAGE_BUILD="2026-10-13f";   // Code.gs の BUILD と そろえる
 var TKEY=(BOOT&&BOOT.key)||""; try{ if(TKEY) localStorage.setItem("oonawa.tkey",TKEY); else TKEY=localStorage.getItem("oonawa.tkey")||""; }catch(e){}
 var MODE=BOOT?BOOT.mode:"all", SHOWN=BOOT&&BOOT.shown?BOOT.shown.slice():null;
 /* 児童に 出す もの：スライダーは 変数ごと（"bpm"）、選択式は 選択肢ごと（"angle:60"）。
@@ -776,7 +776,12 @@ if(IS_MON){
   if(GAS){ var poll=function(){ google.script.run.withSuccessHandler(function(r){ if(r&&r.m){ try{ applyLive(JSON.parse(r.m),r.now-r.at+150); }catch(e){} } setTimeout(poll,1000); })
       .withFailureHandler(function(){ setTimeout(poll,3000); }).getLive(); }; poll(); }
   $("fsBtn").hidden=false;
-  $("fsBtn").onclick=function(){ try{ document.documentElement.requestFullscreen().catch(function(){}); }catch(e){} this.hidden=true; };
+  /* GAS の 画面は iframe の 中なので、全画面が ことわられる ことが ある。その ときは F11 を 案内する */
+  var fsNg=function(){ $("fsBtn").hidden=false; $("fsBtn").textContent="F11 キーで 全画面に"; $("fsBtn").disabled=true; };
+  $("fsBtn").onclick=function(){ var b=this;
+    if(!document.fullscreenEnabled||!document.documentElement.requestFullscreen){ fsNg(); return; }
+    try{ document.documentElement.requestFullscreen().then(function(){ b.hidden=true; },fsNg); }catch(e){ fsNg(); } };
+  document.addEventListener("fullscreenchange",function(){ if(!document.fullscreenElement) $("fsBtn").hidden=false; });
 } else {
   document.addEventListener("click",function(){ setTimeout(function(){ sendLive(true); },0); },true);
   document.addEventListener("input",function(){ setTimeout(function(){ sendLive(true); },0); },true);
