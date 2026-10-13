@@ -47,6 +47,16 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .lever .name{font-weight:700}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 0;min-width:5em}
+.sidecol{display:grid;gap:20px;min-width:0}
+@media (min-width:861px){
+  body:not(.present){height:100vh;overflow:hidden}
+  body:not(.present) .wrap{height:100vh;display:flex;flex-direction:column;gap:12px;padding-block:12px}
+  body:not(.present) .main{flex:1;min-height:0;align-items:stretch}
+  body:not(.present) .stage{display:flex;flex-direction:column;min-height:0;overflow-y:auto}
+  body:not(.present) .stage .vw:not([hidden]){flex:1 1 auto;min-height:160px;display:flex;flex-direction:column}
+  body:not(.present) .vw svg,body:not(.present) .vw canvas{flex:1 1 0;min-height:0;height:100%;width:100%;object-fit:contain}
+  body:not(.present) .sidecol{min-height:0;overflow-y:auto;overscroll-behavior:contain;align-content:start;padding-right:4px}
+}
 .lower{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
 @media (max-width:860px){ .lower{grid-template-columns:1fr} }
 .yoso{display:grid;gap:12px}
@@ -178,6 +188,7 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <p class="note">赤い点線は 次の人の とぶ 道（●ふみきり → ○ちゃくち）。右の列が 全員 とんだら、左の列が とびはじめます。</p>
     </section>
 
+    <div class="sidecol">
     <section class="panel" aria-label="かえるところ">
       <div class="mode" id="modeBar" hidden></div>
       <h2 id="hNums">回数に はたらく もの</h2>
@@ -186,7 +197,6 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <div id="levers"></div>
       <p class="note">この まとまりの 変数は うごきだけを かえます。とんだ回数は 上の 4つだけで きまります。</p>
     </section>
-  </div>
 
   <div class="lower">
     <section class="panel" aria-label="はかった数">
@@ -199,6 +209,8 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
       <div class="bars" id="bars"></div>
       <p class="empty" id="empty">まだ 数が ありません。大なわを はかったら、ここに 入れます。入れると ぼうの長さで くらべられます。</p>
     </section>
+  </div>
+  </div>
   </div>
 </div>
 
