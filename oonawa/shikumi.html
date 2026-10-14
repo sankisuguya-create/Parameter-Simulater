@@ -149,6 +149,45 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
 .num .row{display:flex;gap:6px;align-items:center}
 .num input[type=range]{flex:1;min-width:0;accent-color:var(--accent);height:40px}
 @media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto} }
+/* ---- 横長の画面（Chromebook・モニター）：操作は最小限、図と「3分でとんだ回数」を最大に ----
+   操作（見る図・再生・見るはやさ）は図の上に1行、回数は図の下に大きく、式と説明は小さく1行 */
+@media (min-width:861px){
+  body:not(.present) .wrap{max-width:none;padding:6px 10px;gap:6px}
+  body:not(.present) header{gap:4px 12px}
+  body:not(.present) h1{font-size:1.05em}
+  body:not(.present) .sub{font-size:.8em}
+  body:not(.present) header button{min-height:30px;padding:0 10px;font-size:.85em}
+  body:not(.present) .main{grid-template-columns:minmax(0,2.3fr) minmax(260px,1fr);gap:8px}
+  body:not(.present) .panel{padding:8px;border-radius:8px}
+  body:not(.present) .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:4px}
+  body:not(.present) .ctl .viewtabs{margin:0;flex:0 1 auto}
+  body:not(.present) .ctl .play{margin:0;flex:1 1 220px;gap:4px;font-size:.85em}
+  body:not(.present) .ctl .play+.play{flex:0 1 auto}
+  body:not(.present) .ctl button{min-height:32px;min-width:32px;padding:0 8px;font-size:.85em}
+  body:not(.present) .ctl .seg button{min-width:3.2em}
+  body:not(.present) .ctl input[type=range]{height:28px}
+  body:not(.present) .obrow{font-size:.8em}
+  body:not(.present) .obrow input{height:24px}
+  body:not(.present) .result{margin-top:4px;padding:2px 12px;gap:4px 32px;align-items:center}
+  body:not(.present) .result .lbl{font-size:.9em}
+  body:not(.present) .result .big{font-size:4.2em;line-height:1.05}
+  body:not(.present) .result .mid{font-size:2em}
+  body:not(.present) .calc{font-size:.75em;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body:not(.present) .stage .note{display:none}
+  body:not(.present) .sidecol{gap:8px}
+  body:not(.present) .sidecol h2{font-size:.9em;margin:0 0 2px}
+  body:not(.present) .num{padding-block:3px;gap:0;font-size:.85em}
+  body:not(.present) .num .val{font-size:1.05em}
+  body:not(.present) .num button{min-height:30px;min-width:30px;padding:0}
+  body:not(.present) .num input[type=range]{height:28px}
+  body:not(.present) .sidecol .note{font-size:.75em}
+  body:not(.present) .grp>summary{min-height:36px;font-size:.9em}
+  body:not(.present) .ctl button{white-space:nowrap}
+  body:not(.present) .lever{font-size:.85em;padding-block:6px}
+  body:not(.present) .lever button{min-height:32px;padding:2px 6px}
+  body:not(.present) .lever svg.ico.opt{width:1.3em;height:1.3em}
+  body:not(.present) #trial-bar{padding:3px 10px;font-size:.8em}
+}
 </style>
 
 <div class="wrap" id="app">
@@ -167,22 +206,24 @@ svg.gico{width:1.5em;height:1.5em;margin:0;stroke-width:2.2}
 
   <div class="main">
     <section class="panel stage" aria-label="うごきの図">
-      <div class="seg viewtabs" id="viewTabs" role="group" aria-label="見る 図"><button data-view="top">上から 見る</button><button data-view="side">横から 見る</button><button data-view="ob">斜めから 見る</button></div>
+      <div class="ctl">
+        <div class="seg viewtabs" id="viewTabs" role="group" aria-label="見る 図"><button data-view="top">上から 見る</button><button data-view="side">横から 見る</button><button data-view="ob">斜めから 見る</button></div>
+        <div class="play">
+          <button id="playBtn" aria-label="さいせい・とめる">‖</button>
+          <input type="range" id="scrub" min="0" max="180" step="0.05" value="0" aria-label="じかん">
+          <span class="time" id="time">0.0びょう</span>
+        </div>
+        <div class="play" role="group" aria-label="見るはやさ">
+          <span>見るはやさ</span>
+          <div class="seg" id="rate" style="flex:1">
+            <button data-v="0.25">×0.25</button><button data-v="0.5">×0.5</button><button data-v="1" aria-pressed="true">×1</button>
+          </div>
+        </div>
+      </div>
       <div class="vw" data-view="top"><svg id="top" viewBox="0 0 400 290" role="img" aria-label="上から見た八の字とびのうごき"></svg></div>
       <div class="vw" data-view="side"><svg id="side" viewBox="0 0 400 165" role="img" aria-label="横から見たなわの高さ"></svg></div>
       <div class="vw" data-view="ob"><canvas id="oblique" width="800" height="420" role="img" aria-label="斜め上から見た なわの 回り方と とぶ 子"></canvas>
       <div class="obrow"><label for="obYaw">見る むき</label><input type="range" id="obYaw" min="-60" max="60" step="1" value="-28"></div></div>
-      <div class="play">
-        <button id="playBtn" aria-label="さいせい・とめる">‖</button>
-        <input type="range" id="scrub" min="0" max="180" step="0.05" value="0" aria-label="じかん">
-        <span class="time" id="time">0.0びょう</span>
-      </div>
-      <div class="play" role="group" aria-label="見るはやさ">
-        <span>見るはやさ</span>
-        <div class="seg" id="rate" style="flex:1">
-          <button data-v="0.25">×0.25</button><button data-v="0.5">×0.5</button><button data-v="1" aria-pressed="true">×1</button>
-        </div>
-      </div>
       <div class="result" aria-live="polite">
         <div><span class="lbl">3分で とんだ回数</span><span class="big" id="resAll">0</span><span class="unit">回</span></div>
         <div><span class="lbl">いままで</span><span class="mid" id="resNow">0</span><span class="unit">回</span></div>
